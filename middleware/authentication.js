@@ -5,7 +5,7 @@ const SECRET_KEY = "anurag053";
 const authenticate = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1]; // while postman testing
-    // const token = req.headers.authorization; // with frontend form
+    //const token = req.headers.authorization; // with frontend form
 
     if (!token) {
       return res.status(401).json({ error: 'Authorization token not provided' });
@@ -32,7 +32,7 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({status:401, error: 'Token expired' });
     }
     console.error('Authentication error:', error);
-    return res.status(500).json({status:401, error: 'Internal server error' });
+    return res.status(500).json({status:401, error: error.message });
   }
 };
 

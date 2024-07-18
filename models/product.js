@@ -8,7 +8,6 @@ var productSchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-    //   lowercase: true,
     },
     description: {
       type: String,
@@ -19,12 +18,15 @@ var productSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Category",
+      type:String,
+      required:true
     },
     brand: {
       type: String,
-      enum: ["Apple", "Lenevo", "Asus", "Samsung", "Motorola"],
+      requires:true
+      // enum: ["Apple", "Lenevo", "Asus", "Samsung", "Motorola"],
     },
     quantity: {
         type:Number,
