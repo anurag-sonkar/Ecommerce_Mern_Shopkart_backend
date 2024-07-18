@@ -1,7 +1,9 @@
 const USER = require("../models/user");
 const moment = require("moment");
 const path = require("path");
-const bcrypt = require('bcryptjs')
+const bcrypt = require("bcryptjs");
+const sendEmail = require("./emailCtrl");
+const crypto = require('crypto')
 
 async function handleRegisterNewUser(req, res) {
   const body = req.body;
@@ -45,7 +47,7 @@ async function handleRegisterNewUser(req, res) {
 
 async function handleLoginUser(req, res) {
   const body = req.body;
-  console.log(req.body)
+  console.log(req.body);
   const { email, password } = body;
 
   if (!email || !password) {
@@ -56,8 +58,13 @@ async function handleLoginUser(req, res) {
     const isValidUser = await USER.findOne({ email: email });
 
     // if blocked one returned
-    if(isValidUser.isBlocked){
-            return res.status(400).json({status:400 , message:"User is Blocked Can't login, Contact to admin"})
+    if (isValidUser.isBlocked) {
+      return res
+        .status(400)
+        .json({
+          status: 400,
+          message: "User is Blocked Can't login, Contact to admin",
+        });
     }
 
     if (isValidUser) {
@@ -84,4 +91,47 @@ async function handleLoginUser(req, res) {
   }
 }
 
-module.exports = { handleRegisterNewUser, handleLoginUser };
+const handleForgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const user = await USER.findOne({ email: email });
+  if (!user) throw new Error("User not found with this email");
+  try {
+    const token = await user.createPasswordResetToken();
+    await user.save();
+    const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:8000/auth/reset-password/${token}'>Click Here</>`;
+    const data = {
+      to: email,
+      text: resetURL,
+      subject: "Forgot Password Link",
+      htm: resetURL,
+    };
+    sendEmail(data);
+    res.json(token);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+const handleResetPassword = async (req, res) => {
+  const { password } = req.body;
+  const { token } = req.params;
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await USER.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpire: { $gt: Date.now() },
+  });
+  
+  if (!user) throw new Error(" Token Expired, Please try again later");
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpire = undefined;
+  await user.save();
+  res.json(user);
+};
+
+module.exports = {
+  handleRegisterNewUser,
+  handleLoginUser,
+  handleForgotPassword,
+  handleResetPassword,
+};

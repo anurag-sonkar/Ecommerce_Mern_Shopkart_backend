@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "anurag053";
+const crypto = require("crypto");
+
 // mdbgum - snnipet
 // Declare the Schema of the Mongo model
 var userSchema = new mongoose.Schema(
@@ -9,8 +11,8 @@ var userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
+      // unique: true,
+      // index: true,
       trim: true, // remove left right extra spaces
     },
     email: {
@@ -47,9 +49,9 @@ var userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
-    isBlocked:{
-        type:Boolean,
-        default:false
+    isBlocked: {
+      type: Boolean,
+      default: false,
     },
     cart: {
       type: Array,
@@ -59,7 +61,7 @@ var userSchema = new mongoose.Schema(
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
 
     passwordChangeAt: Date,
-    passwordResetToken : String,
+    passwordResetToken: String,
     passwordResetExpire: Date,
   },
   { timestamps: true }
@@ -92,13 +94,15 @@ userSchema.methods.generateAuthtoken = async function () {
 
 //
 
-// userSchema.methods.createPasswordResetToken = async()=>{
-//   try {
-    
-//   } catch (error) {
-    
-//   }
-// }
+userSchema.methods.createPasswordResetToken = async function () {
+  const resettoken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resettoken)
+    .digest("hex");
+  this.passwordResetExpire = Date.now() + 30 * 60 * 1000; // 10 minutes
+  return resettoken;
+};
 
 const USER = mongoose.model("User", userSchema);
 
