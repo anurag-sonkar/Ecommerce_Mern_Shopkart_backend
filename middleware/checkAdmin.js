@@ -1,7 +1,7 @@
 const checkAdmin = (req,res,next)=>{
     const user = req.user
     try {
-        console.log(req.user)
+        // console.log(req.user)
         if(user.role === 'admin'){
             next()
         }else{
