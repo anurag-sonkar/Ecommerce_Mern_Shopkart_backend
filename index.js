@@ -23,5 +23,4 @@ app.use('/product' ,authenticate, productRoute)
 app.use('/auth' , authRouter)
 app.use('/' , authenticate ,protectedRoute)
 
-
 app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT} `))

@@ -7,7 +7,9 @@ const {
   handleUpdateUser,
   handleBlockUser,
   handleUnblockUser,
-  handleLogout
+  handleLogout,
+  handleChangePassword
+
 } = require("../controllers/staticCtrl");
 const checkAdmin = require("../middleware/checkAdmin");
 const router = express.Router();
@@ -16,6 +18,7 @@ router.get("/home", handleGetUser);
 router.get("/getuser", handleGetUserInfo);
 router.put("/updateuser", handleUpdateUser);
 router.get('/logout' ,handleLogout )
+router.put('/changepassword' , handleChangePassword)
 
 // get all users if admin
 router.get("/allusers", checkAdmin, handleGetAllUsersInfo);

@@ -57,6 +57,10 @@ var userSchema = new mongoose.Schema(
     },
     address: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+
+    passwordChangeAt: Date,
+    passwordResetToken : String,
+    passwordResetExpire: Date,
   },
   { timestamps: true }
 );
@@ -85,6 +89,16 @@ userSchema.methods.generateAuthtoken = async function () {
     throw new Error("Error in generating token");
   }
 };
+
+//
+
+// userSchema.methods.createPasswordResetToken = async()=>{
+//   try {
+    
+//   } catch (error) {
+    
+//   }
+// }
 
 const USER = mongoose.model("User", userSchema);
 

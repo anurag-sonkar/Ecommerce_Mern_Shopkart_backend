@@ -119,7 +119,37 @@ const handleLogout = async (req, res) => {
     });
 
     req.user.save();
-    res.status(200).json({ status: 200 , message: "logout successfully"});
+    res.status(200).json({ status: 200, message: "logout successfully" });
+  } catch (error) {
+    res.status(401).json({ status: 401, error: error.message });
+  }
+};
+
+const handleChangePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user._id; // for req.user._id
+
+  try {
+    // Find the user by ID
+    const user = await USER.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Validate current password
+    console.log("Matching Start")
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log("Matching end")
+    console.log("Check Match", isMatch);
+    if (!isMatch)
+      return res.status(400).json({ message: "Current password is incorrect" });
+
+    // Hash the new password - no need becoz when save then pre middleware runs which will hash
+    // const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
   } catch (error) {
     res.status(401).json({ status: 401, error: error.message });
   }
@@ -134,4 +164,5 @@ module.exports = {
   handleBlockUser,
   handleUnblockUser,
   handleLogout,
+  handleChangePassword,
 };
