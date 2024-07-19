@@ -66,10 +66,10 @@ async function handleLoginUser(req, res) {
           message: "User is Blocked Can't login, Contact to admin",
         });
     }
-
+    console.log(isValidUser)
     if (isValidUser) {
       const isMatch = await bcrypt.compare(password, isValidUser.password);
-
+      console.log(isMatch)
       if (!isMatch) {
         return res.status(400).json({ error: "Password not matched" });
       } else {

@@ -24,10 +24,13 @@ var userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      // select:false // population k time password show nhi karega abb front end m 
     },
     cpassword: {
       type: String,
       required: true,
+      // select:false
+
     },
     imgpath: {
       type: String,
@@ -43,6 +46,7 @@ var userSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+
       },
     ],
     role: {
@@ -52,6 +56,8 @@ var userSchema = new mongoose.Schema(
     isBlocked: {
       type: Boolean,
       default: false,
+      select:false
+
     },
     cart: {
       type: Array,
