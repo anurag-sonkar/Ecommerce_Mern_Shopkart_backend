@@ -185,10 +185,13 @@ const handleResetPassword = async (req, res) => {
   res.json(user);
 };
 
+
+
 module.exports = {
   handleRegisterNewUser,
   handleLoginUser,
   handleForgotPassword,
   handleResetPassword,
-  handleLoginAdmin
+  handleLoginAdmin,
+  
 };

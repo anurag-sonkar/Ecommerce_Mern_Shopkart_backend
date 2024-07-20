@@ -155,6 +155,18 @@ const handleChangePassword = async (req, res) => {
   }
 };
 
+const handleGetUserWishlist = async(req,res)=>{
+  const {id} = req.user
+  try {
+    const response = await USER.findById(id).populate('wishlist')
+    res.status(200).json(response)
+  } catch (error) {
+
+    return res.status(400).json({ error: error.message });
+    
+  }
+}
+
 module.exports = {
   handleGetUser,
   handleGetAllUsersInfo,
@@ -165,4 +177,5 @@ module.exports = {
   handleUnblockUser,
   handleLogout,
   handleChangePassword,
+  handleGetUserWishlist
 };
