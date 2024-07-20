@@ -1,14 +1,21 @@
 const express = require("express");
-const {createProduct,getProduct,updateProduct,deleteProduct,getAllProducts,addToWishlist,rating} = require('../controllers/productCtrl');
-const checkAdmin = require("../middleware/checkAdmin");
 const router = express.Router();
 
-router.put('/rating' , rating)
-router.put('/addtowishlist' , addToWishlist)
-router.post('/' ,checkAdmin, createProduct)
+const {createProduct,getProduct,updateProduct,deleteProduct,getAllProducts,addToWishlist,rating, uploadImages} = require('../controllers/productCtrl');
+
+const checkAdmin = require("../middleware/checkAdmin");
+const authenticate = require("../middleware/authentication");
+const { uploadPhoto, productImgResize } = require("../middleware/uploadImages");
+
+
+router.put('/rating' ,authenticate, rating)
+router.put('/addtowishlist' ,authenticate, addToWishlist)
+router.post('/' ,authenticate ,checkAdmin, createProduct)
 router.get('/:id' , getProduct)
 router.get('/' , getAllProducts)
-router.put('/:id' ,checkAdmin, updateProduct)
-router.delete('/:id' ,checkAdmin, deleteProduct)
+router.put('/:id' ,authenticate,checkAdmin, updateProduct)
+router.delete('/:id' ,authenticate,checkAdmin, deleteProduct)
+
+router.put('/upload/:id',authenticate,checkAdmin,uploadPhoto.array('images',10),productImgResize,uploadImages)
 
 module.exports = router

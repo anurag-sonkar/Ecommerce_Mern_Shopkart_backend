@@ -31,7 +31,7 @@ app.use('/brand' , brandRoute)
 app.use('/blog-category' , blogCategoryRoute)
 app.use('/product-category' , productCategoryRoute)
 app.use('/blog' , blogRoute)
-app.use('/product' ,authenticate, productRoute)
+app.use('/product', productRoute)
 app.use('/auth' , authRouter)
 app.use('/' , authenticate ,protectedRoute)
 

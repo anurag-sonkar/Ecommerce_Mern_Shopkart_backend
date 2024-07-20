@@ -1,5 +1,7 @@
 const BLOG = require("../models/blog");
 const USER = require("../models/user");
+const { cloudinaryUploadImg } = require("../utils/cloudinary");
+const fs = require('fs')
 
 const handleCreateNewBlog = async (req, res) => {
   try {
@@ -202,6 +204,29 @@ const handleDislikeBlog = async(req,res)=>{
   }
 }
 
+const uploadImages = async (req, res) => {
+  const {id} = req.params
+  try {
+    const uploader = (path) => cloudinaryUploadImg(path, "images");
+    const urls = [];
+    const files = req.files;
+    for (const file of files) {
+      const { path } = file;
+      const newpath = await uploader(path);
+      urls.push(newpath);
+      fs.unlinkSync(path);
+    }
+    const findBlog = await BLOG.findByIdAndUpdate(id ,{
+      images : urls.map(file=>file)
+    },{new:true})
+
+    res.json(findBlog);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+
 module.exports = {
   handleCreateNewBlog,
   handleUpdateBlog,
@@ -209,5 +234,6 @@ module.exports = {
   handleGetAllBlog,
   handleDeleteBlog,
   handleLikeBlog,
-  handleDislikeBlog
+  handleDislikeBlog,
+  uploadImages
 };

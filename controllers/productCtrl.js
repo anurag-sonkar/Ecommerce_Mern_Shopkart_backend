@@ -1,7 +1,8 @@
 const PRODUCT = require("../models/product");
 const slugify = require("slugify");
 const USER = require("../models/user");
-// const mongoose = require('mongoose')
+const { cloudinaryUploadImg } = require("../utils/cloudinary");
+const fs = require('fs')
 
 const createProduct = async (req, res) => {
   // console.log(req.body)
@@ -270,6 +271,28 @@ const rating = async(req,res)=>{
   }
 }
 
+const uploadImages = async (req, res) => {
+  const {id} = req.params
+  try {
+    const uploader = (path) => cloudinaryUploadImg(path, "images");
+    const urls = [];
+    const files = req.files;
+    for (const file of files) {
+      const { path } = file;
+      const newpath = await uploader(path);
+      urls.push(newpath);
+      fs.unlinkSync(path);
+    }
+    const findProduct = await PRODUCT.findByIdAndUpdate(id ,{
+      images : urls.map(file=>file)
+    },{new:true})
+
+    res.json(findProduct);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   createProduct,
   getProduct,
@@ -277,5 +300,6 @@ module.exports = {
   deleteProduct,
   getAllProducts,
   addToWishlist,
-  rating
+  rating,
+  uploadImages
 };
