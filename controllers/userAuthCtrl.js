@@ -91,6 +91,62 @@ async function handleLoginUser(req, res) {
   }
 }
 
+// admin login
+async function handleLoginAdmin(req, res) {
+  const body = req.body;
+  const { email, password } = body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "fill all the details" });
+  }
+
+  try {
+    const isValidUser = await USER.findOne({ email: email });
+
+    // if blocked one returned
+    if (isValidUser.isBlocked) {
+      return res
+        .status(400)
+        .json({
+          status: 400,
+          message: "This Admin is Blocked Can't login",
+        });
+    }
+
+    // check for admin
+    if(isValidUser.role !== 'admin'){
+      return res
+        .status(400)
+        .json({
+          status: 400,
+          message: "Not an Admin",
+        });
+    }
+
+
+    if (isValidUser) {
+      const isMatch = await bcrypt.compare(password, isValidUser.password);
+      if (!isMatch) {
+        return res.status(400).json({ error: "Password not matched" });
+      } else {
+        // generate token
+        const token = await isValidUser.generateAuthtoken();
+
+        const result = {
+          user: isValidUser,
+          token,
+        };
+
+        return res.status(201).json({ status: 201, result });
+      }
+    } else {
+      return res.status(400).json({ error: "Account not exist" });
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+}
+
 const handleForgotPassword = async (req, res) => {
   const { email } = req.body;
   const user = await USER.findOne({ email: email });
@@ -134,4 +190,5 @@ module.exports = {
   handleLoginUser,
   handleForgotPassword,
   handleResetPassword,
+  handleLoginAdmin
 };
