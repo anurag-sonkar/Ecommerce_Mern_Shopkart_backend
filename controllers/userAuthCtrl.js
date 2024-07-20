@@ -47,7 +47,6 @@ async function handleRegisterNewUser(req, res) {
 
 async function handleLoginUser(req, res) {
   const body = req.body;
-  console.log(req.body);
   const { email, password } = body;
 
   if (!email || !password) {
@@ -66,15 +65,16 @@ async function handleLoginUser(req, res) {
           message: "User is Blocked Can't login, Contact to admin",
         });
     }
-    console.log(isValidUser)
+    // console.log(isValidUser)
     if (isValidUser) {
       const isMatch = await bcrypt.compare(password, isValidUser.password);
-      console.log(isMatch)
+      // console.log(isMatch)
       if (!isMatch) {
         return res.status(400).json({ error: "Password not matched" });
       } else {
         // generate token
         const token = await isValidUser.generateAuthtoken();
+        console.log(token)
 
         const result = {
           user: isValidUser,

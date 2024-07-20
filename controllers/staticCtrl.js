@@ -1,3 +1,6 @@
+const CART = require("../models/cart");
+const COUPON = require("../models/coupon");
+const PRODUCT = require("../models/product");
 const USER = require("../models/user");
 const bcrypt = require("bcryptjs");
 
@@ -91,6 +94,7 @@ const handleBlockUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 const handleUnblockUser = async (req, res) => {
   const id = req.params.id;
   try {
@@ -135,9 +139,9 @@ const handleChangePassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Validate current password
-    console.log("Matching Start")
+    console.log("Matching Start");
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    console.log("Matching end")
+    console.log("Matching end");
     console.log("Check Match", isMatch);
     if (!isMatch)
       return res.status(400).json({ message: "Current password is incorrect" });
@@ -155,17 +159,146 @@ const handleChangePassword = async (req, res) => {
   }
 };
 
-const handleGetUserWishlist = async(req,res)=>{
-  const {id} = req.user
+const handleGetUserWishlist = async (req, res) => {
+  const { id } = req.user;
   try {
-    const response = await USER.findById(id).populate('wishlist')
-    res.status(200).json(response)
+    const response = await USER.findById(id).populate("wishlist");
+    res.status(200).json(response);
   } catch (error) {
-
     return res.status(400).json({ error: error.message });
-    
   }
-}
+};
+
+const handleAddAddress = async (req, res) => {
+  const { id } = req.user;
+  const { address } = req.body;
+  console.log(id, address);
+
+  if (!address)
+    return res
+      .status(400)
+      .json({ status: "failed", message: "address not provided" });
+
+  try {
+    const response = await USER.findByIdAndUpdate(
+      id,
+      {
+        address: address,
+      },
+      { new: true }
+    );
+
+    return res
+      .status(400)
+      .json({
+        status: "success",
+        message: "Address Added",
+        response: response,
+      });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+// cart
+
+const handleUserCart = async (req, res) => {
+  const { cart } = req.body;
+  const user = req.user;
+  try {
+    let products = [];
+    // const user = await USER.findById(id);
+    // check if user already have product in cart
+    const alreadyExistCart = await CART.findOne({ orderby: user.id });
+    // console.log(alreadyExistCart)
+    if (alreadyExistCart) {
+      await CART.findByIdAndDelete(alreadyExistCart._id);
+      // alreadyExistCart.deleteOne();
+    }
+    for (let i = 0; i < cart.length; i++) {
+      let object = {};
+      object.product = cart[i].id;
+      object.count = cart[i].count;
+      object.color = cart[i].color;
+      let getPrice = await PRODUCT.findById(cart[i].id).select("price").exec();
+      object.price = getPrice.price;
+      products.push(object);
+    }
+    let cartTotal = 0;
+    for (let i = 0; i < products.length; i++) {
+      cartTotal = cartTotal + products[i].price * products[i].count;
+    }
+    let newCart = await new CART({
+      products,
+      cartTotal,
+      orderby: user?.id,
+    }).save();
+
+    // Populate the product field in the response
+    // newCart = await CART.findById(newCart.id).populate('products.product').lean().exec();
+
+    res.status(201).json(newCart);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+};
+
+const hanldeGetUserCart = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const cart = await CART.findOne({ orderby: id }).populate(
+      "products.product"
+    );
+    res.status(200).json({ response: cart });
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+};
+
+const handleEmptyUserCart = async (req, res) => {
+  const { id } = req.user;
+  try {
+    // const user = await USER.findOne({ _id });
+    const cart = await CART.findOneAndDelete({ orderby: id });
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+};
+
+// apply coupon - later will update to toggle coupon
+const handleApplyCoupon = async (req, res) => {
+  const { coupon } = req.body;
+  const { id } = req.user;
+
+  const isValidCoupon = await COUPON.findOne({ name: coupon });
+  if (!isValidCoupon) return res.status(400).json("Not a valid coupon");
+
+  try {
+    // find products and cartTotal of that user-cart (stored using CART model)
+    let { products, cartTotal } = await CART.findOne({ orderby: id });
+
+    let totalCartValueAfterDiscount = Number(
+      (cartTotal - (cartTotal * isValidCoupon.discount) / 100).toFixed(2)
+    );
+
+    await CART.findOneAndUpdate(
+      { orderby: id },
+      { totalAfterDiscount: totalCartValueAfterDiscount },
+      { new: true }
+    );
+
+    return res
+      .status(201)
+      .json({
+        status: "success",
+        message: `${isValidCoupon.name} Applied`,
+        totalAfterDiscount: totalCartValueAfterDiscount,
+      });
+  } catch (error) {
+    return res.status(400).json(error.message);
+  }
+};
 
 module.exports = {
   handleGetUser,
@@ -177,5 +310,10 @@ module.exports = {
   handleUnblockUser,
   handleLogout,
   handleChangePassword,
-  handleGetUserWishlist
+  handleGetUserWishlist,
+  handleAddAddress,
+  handleUserCart,
+  hanldeGetUserCart,
+  handleEmptyUserCart,
+  handleApplyCoupon,
 };
