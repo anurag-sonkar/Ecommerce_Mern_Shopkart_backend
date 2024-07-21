@@ -1,8 +1,10 @@
 const CART = require("../models/cart");
 const COUPON = require("../models/coupon");
+const ORDER = require("../models/order");
 const PRODUCT = require("../models/product");
 const USER = require("../models/user");
 const bcrypt = require("bcryptjs");
+var uniqid = require('uniqid'); 
 
 const handleGetUser = async (req, res) => {
   try {
@@ -300,6 +302,116 @@ const handleApplyCoupon = async (req, res) => {
   }
 };
 
+
+// orders
+const handleCreateOrder = async(req,res)=>{
+  const {COD , couponApplied} = req.body
+  const {id} = req.user
+
+  if(!COD) return res.status(400).json({message:"COD order failed"})
+  try {
+    let userCart = await CART.findOne({orderby:id})
+    // console.log(userCart)
+    let finalAmount = 0
+
+    if (couponApplied && userCart.totalAfterDiscount) {
+      finalAmount = userCart.totalAfterDiscount;
+    } else {
+      finalAmount = userCart.cartTotal;
+    }
+
+    let newOrder = await new  ORDER({
+      products:userCart.products,
+      paymentIntent:{
+        id: uniqid(),
+        method:"COD",
+        amount:finalAmount,
+        status:"Cash on Delivery",
+        created :Date.now(),
+        currency:"usd"
+      },
+      orderby:req.user.id,
+      orderStatus:"Cash on Delivery"
+    }).save()
+
+    let update = userCart.products.map((item) => {
+      return {
+        updateOne: {
+          filter: { _id: item.product._id },
+          update: { $inc: { quantity: -item.count, sold: +item.count } },
+        },
+      };
+    });
+    const updated = await PRODUCT.bulkWrite(update, {});
+    res.status(200).json({ message: "success" });
+
+  } catch (error) {
+    return res.status(400).json(error.message);
+
+    
+  }
+}
+
+
+const handleGetOrder = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const userorders = await ORDER.findOne({ orderby: id })
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+      console.log(userorders)
+    res.json(userorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+const handleGetAllOrders = async (req, res) => {
+  try {
+    const alluserorders = await ORDER.find()
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    res.json(alluserorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+const handleGetOrderByUserId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userorders = await ORDER.findOne({ orderby: id })
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    res.json(userorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+const handleUpdateOrderStatus = async (req, res) => {
+  const { status } = req.body;
+  const { id } = req.params;
+  try {
+    const updateOrderStatus = await ORDER.findByIdAndUpdate(
+      id,
+      {
+        orderStatus: status,
+        paymentIntent: {
+          status: status,
+        },
+      },
+      { new: true }
+    );
+    res.json(updateOrderStatus);
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 module.exports = {
   handleGetUser,
   handleGetAllUsersInfo,
@@ -316,4 +428,9 @@ module.exports = {
   hanldeGetUserCart,
   handleEmptyUserCart,
   handleApplyCoupon,
+  handleCreateOrder,
+  handleGetOrder,
+  handleGetAllOrders,
+  handleGetOrderByUserId,
+  handleUpdateOrderStatus
 };

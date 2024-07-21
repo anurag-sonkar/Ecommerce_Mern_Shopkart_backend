@@ -10,10 +10,9 @@ const cloudinaryUploadImg = async (fileToUploads) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(fileToUploads, { resource_type: "auto" }, (error, result) => {
       if (error) {
-        // console.error('Upload Error:', error);
+        console.error('Upload Error:', error);
         reject(error);
       } else {
-        // console.log('Upload Result:', result);
         resolve({
           url: result.secure_url,
           asset_id: result.asset_id,
@@ -25,18 +24,20 @@ const cloudinaryUploadImg = async (fileToUploads) => {
 };
 
 const cloudinaryDeleteImg = async (fileToDelete) => {
-  return new Promise((resolve) => {
-    cloudinary.uploader.destroy(fileToDelete, (result) => {
-      resolve(
-        {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(fileToDelete, (error, result) => {
+      if (error) {
+        console.error('Delete Error:', error);
+        reject(error);
+      } else if (result) {
+        resolve({
           url: result.secure_url,
           asset_id: result.asset_id,
           public_id: result.public_id,
-        },
-        {
-          resource_type: "auto",
-        }
-      );
+        });
+      } else {
+        reject(new Error('Failed to delete image from Cloudinary'));
+      }
     });
   });
 };

@@ -14,7 +14,12 @@ const {
   handleUserCart,
   hanldeGetUserCart,
   handleEmptyUserCart,
-  handleApplyCoupon
+  handleApplyCoupon,
+  handleCreateOrder,
+  handleGetOrder,
+  handleGetAllOrders,
+  handleGetOrderByUserId,
+  handleUpdateOrderStatus
 
 } = require("../controllers/staticCtrl");
 const checkAdmin = require("../middleware/checkAdmin");
@@ -33,6 +38,14 @@ router.get('/cart',hanldeGetUserCart)
 router.delete('/cart',handleEmptyUserCart)
 // apply coupon
 router.post('/cart/coupon' , handleApplyCoupon)
+
+// order
+router.post('/order/cod' , handleCreateOrder)
+router.get('/order' , handleGetOrder)
+router.get('/order/:id' , handleGetOrderByUserId)
+router.get('/order/get-all' , handleGetAllOrders)
+router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
+
 
 
 //  if admin

@@ -37,12 +37,15 @@ var productSchema = new mongoose.Schema(
       default: 0,
       select:false // to hide it from user
     },
-    images: [],
+    images: [
+      {
+        public_id: String,
+        url: String,
+      },
+    ],
 
-    color: {
-      type: String,
-      enum: ["Black", "Brown", "Red"],
-    },
+    color: [{type:mongoose.Schema.Types.ObjectId , ref:'Color'}],
+    tags:[],
     ratings: [
       {
         star: Number,
