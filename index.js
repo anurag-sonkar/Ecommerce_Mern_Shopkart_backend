@@ -13,6 +13,7 @@ const blogCategoryRoute = require('./routes/blogCategoryRoutes')
 const brandRoute = require('./routes/bandRoutes')
 const colorRoute = require('./routes/colorRoutes')
 const couponRoute = require('./routes/couponRoutes')
+const enquiryRoute = require('./routes/enquiryRoutes')
 
 const path = require('path')
 const authenticate = require('./middleware/authentication')
@@ -27,6 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // routes
+app.use('/enquiry' , enquiryRoute)
 app.use('/coupon' , couponRoute)
 app.use('/color' , colorRoute)
 app.use('/brand' , brandRoute)
