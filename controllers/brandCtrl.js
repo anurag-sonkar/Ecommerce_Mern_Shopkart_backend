@@ -3,17 +3,16 @@ const BRAND = require("../models/brand");
 const handleCreateBrand = async (req, res) => {
   try {
     const brand = await BRAND.create(req.body);
-    res.status(201).json({ status: "success", brand });
+    return res.status(201).json({ status: "success", brand , message : "brand created successfully" });
   } catch (error) {
-    throw new Error(error);
+    return res.status(400).json({status:"error" , message:error.message})
   }
 };
 
 const handleUpdateBrand = async (req, res) => {
   
-  console.log("Start")
   const { id } = req.params;
-  console.log(id)
+
   try {
     const updateBrand = await BRAND.findOneAndUpdate(
       { _id: id },
@@ -22,16 +21,17 @@ const handleUpdateBrand = async (req, res) => {
     );
 
     if (updateBrand) {
-      res.json({
+      const updatedBrands = await BRAND.find()
+      return res.json({
         status: "success",
         message: "Brand updated Successfully",
-        response: updateBrand,
+        response: updatedBrands,
       });
     } else {
-      res.json({ status: "error", message: "Brand update failed" });
+      return res.json({ status: "error", message: "Brand update failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    return res.json({ status: "error", message: error.message });
   }
 };
 
@@ -41,16 +41,17 @@ const handleDeleteBrand = async(req,res)=>{
   try {
     const deleteResponse = await BRAND.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedBrands = await BRAND.find()
       res.json({
         status: "success",
         message: "Brand deleted Successfully",
-        response: deleteResponse,
+        response: updatedBrands,
       });
     } else {
       res.json({ status: "error", message: "Brand deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.json({ status: "error", message: error.message });
   }
 }
 
@@ -69,7 +70,7 @@ try {
   }
   
 } catch (error) {
-  throw new Error(error);
+  return res.status(400).json({status:"error" , message:error.message})
   
 }
   
@@ -80,12 +81,13 @@ try {
 const handleGetAllBrand = async(req,res)=>{
   try {
     const response = await BRAND.find()
-    res.json({
+    return res.status(200).json({
       status: "success",
       response: response,
+      message:"brands fetched successfully",
     });
   } catch (error) {
-  throw new Error(error);
+  return res.status(400).json({status:"error" , message:error.message})
     
   }
 

@@ -29,8 +29,8 @@ router.put('/add-address' , handleAddAddress)
 router.get('/wishlist', handleGetUserWishlist)
 router.get("/home", handleGetUser);
 router.get("/getuser", handleGetUserInfo);
+router.put('/logout' ,handleLogout )
 router.put("/updateuser", handleUpdateUser);
-router.get('/logout' ,handleLogout )
 router.put('/changepassword' , handleChangePassword)
 // cart
 router.post('/cart',handleUserCart)
@@ -40,10 +40,10 @@ router.delete('/cart',handleEmptyUserCart)
 router.post('/cart/coupon' , handleApplyCoupon)
 
 // order
+router.get('/order/get-all' , handleGetAllOrders)
 router.post('/order/cod' , handleCreateOrder)
 router.get('/order' , handleGetOrder)
 router.get('/order/:id' , handleGetOrderByUserId)
-router.get('/order/get-all' , handleGetAllOrders)
 router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
 
 

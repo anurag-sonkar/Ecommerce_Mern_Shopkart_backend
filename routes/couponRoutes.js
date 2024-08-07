@@ -7,8 +7,8 @@ const {handleCouponGenerate,handleGetAllCoupons,
 const authenticate = require('../middleware/authentication')
 const checkAdmin = require('../middleware/checkAdmin')
 
-router.delete('/:id' ,authenticate , checkAdmin, handleDeleteCoupon)
 router.post('/' ,authenticate , checkAdmin, handleCouponGenerate)
+router.delete('/:id' ,authenticate , checkAdmin, handleDeleteCoupon)
 router.get('/:id' ,authenticate , checkAdmin, handleGetCoupon)
 router.put('/:id' ,authenticate , checkAdmin, handleUpdateCoupon)
 router.get('/' ,authenticate , checkAdmin, handleGetAllCoupons)

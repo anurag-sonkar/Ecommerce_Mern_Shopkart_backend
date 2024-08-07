@@ -18,9 +18,9 @@ const handleCouponGenerate = async (req, res) => {
 
     const newCoupon = new COUPON({ name, expiry: expiryDate, discount });
     await newCoupon.save();
-    res.status(201).json(newCoupon);
+    res.status(201).json({resposne : newCoupon , "message" : "coupon generated successfully"});
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
   }
 };
 
@@ -38,13 +38,14 @@ const handleGetCoupon = async (req, res) => {
       expiry: format(new Date(getAcoupon.expiry), "dd-MM-yyyy"),
     };
 
-    res.json(formattedCoupon);
+    res.json({response : formattedCoupon , message : "fetch coupon successfully"});
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 const handleUpdateCoupon = async (req, res) => {
+  console.log("body",req.body)
     const {id} = req.params
   const { name, expiry, discount } = req.body;
 
@@ -68,18 +69,23 @@ const handleUpdateCoupon = async (req, res) => {
         new: true,
       }
     );
-    res.json(updatecoupon);
+    if(updatecoupon){
+      const updatedCoupon = await COUPON.find()
+      res.status(200).json({response : updatedCoupon , message : "coupon updated successfully"});
+    }else{
+
+    }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
   }
 };
 
 const handleGetAllCoupons = async (req, res) => {
   try {
     const coupons = await COUPON.find();
-    res.json(coupons);
+    res.json({response : coupons , message : "coupons fetched successfully"});
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
   }
 };
 
@@ -87,9 +93,17 @@ const handleDeleteCoupon = async (req, res) => {
   const { id } = req.params;
   try {
     const deletecoupon = await COUPON.findByIdAndDelete({_id:id});
-    res.json(deletecoupon);
+    if(deletecoupon){
+      const updatedCoupons = await COUPON.find()
+      return res.status(200).json({response : updatedCoupons , message : "coupon deleted successfully"});
+      
+    }
+    else{
+      
+      return res.status(400).json({ message : "delete coupon failed"});
+    }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
   }
 };
 

@@ -17,17 +17,18 @@ const handleUpdateEnquiry = async (req, res) => {
     const { id } = req.params;
   
     try {
-      const updateColor = await ENQUIRY.findOneAndUpdate(
+      const resposne = await ENQUIRY.findOneAndUpdate(
         { _id: id },
         req.body,
         { new: true }
       );
   
-      if (updateColor) {
+      if (resposne) {
+        const updatedEnquires = await ENQUIRY.find()
         res.json({
           status: "success",
           message: "Enquiry updated Successfully",
-          response: updateColor,
+          response: updatedEnquires,
         });
       } else {
         res.json({ status: "error", message: "Enquiry update failed" });
@@ -46,16 +47,18 @@ const handleDeleteEnquiry = async (req, res) => {
   try {
     const deleteResponse = await ENQUIRY.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedEnquires = await ENQUIRY.find()
       res.json({
         status: "success",
         message: "Enquiry deleted Successfully",
-        response: deleteResponse,
+        response: updatedEnquires,
       });
     } else {
       res.json({ status: "error", message: "Enquiry deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -70,6 +73,7 @@ const handleGetEnquiry = async (req, res) => {
         res.json({
             status: "success",
             response: response,
+            message : "enquiry fetched successfully"
           });
 
     } 
@@ -77,7 +81,8 @@ const handleGetEnquiry = async (req, res) => {
       res.json({ status: "error", message: "Enquiry not exists" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -87,9 +92,11 @@ const handleGetAllEnquiry = async (req, res) => {
     res.json({
       status: "success",
       response: response,
+      message : "enquires fetched successfully"
     });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 

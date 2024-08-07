@@ -3,9 +3,10 @@ const USER = require('../models/user');
 const SECRET_KEY = "anurag053";
 
 const authenticate = async (req, res, next) => {
+  console.log(req.headers.authorization)
   if(!req.headers.authorization) return res.status(400).json({error:"token not found"})
-  try {
-    const token = req.headers.authorization.split(" ")[1]; // while postman testing
+    try {
+  const token = req.headers.authorization.split(" ")[1]; // while postman testing
     // const token = req.headers.authorization; // with frontend form
 
     if (!token) {

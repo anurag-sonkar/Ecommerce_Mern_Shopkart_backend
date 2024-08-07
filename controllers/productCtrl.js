@@ -5,28 +5,30 @@ const { cloudinaryUploadImg , cloudinaryDeleteImg } = require("../utils/cloudina
 const fs = require('fs')
 
 const createProduct = async (req, res) => {
-  // console.log(req.body)
+  console.log("body",req.body)
   try {
     if (req.body.title) req.body.slug = slugify(req.body.title);
 
     const newProduct = await PRODUCT.create(req.body);
-    res.json(newProduct);
+    res.status(201).json({message:"product created successfully" , response : newProduct});
   } catch (error) {
-    throw new Error(error);
+    console.log(error)
+    return res.status(500).json({message:error.message})
   }
 };
 
 const getProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await PRODUCT.findOne({ _id: id });
+    const product = await PRODUCT.findOne({ _id: id }).populate('color');
     if (product) {
-      res.json({ status: "success", product: product });
+      return res.status(200).json({ status: "success", response: product , message:"product fetched successfully"});
     } else {
-      res.json({ status: "error", message: "product not found" });
+      return res.status(400).json({ status: "error", message: "product not found" });
     }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 };
 
@@ -50,7 +52,8 @@ const updateProduct = async (req, res) => {
       res.json({ status: "error", message: "Product update failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 };
 const deleteProduct = async (req, res) => {
@@ -58,16 +61,18 @@ const deleteProduct = async (req, res) => {
   try {
     const deleteResponse = await PRODUCT.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedResult = await PRODUCT.find()
       res.json({
         status: "success",
         message: "Products deleted Successfully",
-        response: deleteResponse,
+        response: updatedResult,
       });
     } else {
       res.json({ status: "error", message: "Product deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 };
 
@@ -125,7 +130,7 @@ const getAllProducts = async (req, res) => {
   }
 
   /* limiting products and Pagination*/
-  const MAX_LIMIT = 5;
+  const MAX_LIMIT = 10;
   let limitValue = limit ? parseInt(limit) : MAX_LIMIT;
   let pageValue = page ? parseInt(page) : 1;
   // set maxlimit
@@ -141,14 +146,17 @@ const getAllProducts = async (req, res) => {
     const products = await PRODUCT.find(filter)
       .skip(skipValue)
       .sort(sort)
-      .limit(limitValue);
+      .limit(limitValue)
+      .populate('color')
+
     if (products) {
-      res.json({ status: "success", products: products });
+      res.json({ status: "success", response: products , message : "all products fetched successfully"});
     } else {
       res.json({ status: "error", message: "products not found" });
     }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 };
 
@@ -267,7 +275,8 @@ const rating = async(req,res)=>{
     // Send the updated product as response
     res.json(finalProduct);
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 }
 
@@ -280,11 +289,12 @@ const uploadImages = async (req, res) => {
       const { path } = file;
       const newpath = await uploader(path);
       urls.push(newpath);
-      fs.unlinkSync(path);
+      // fs.unlinkSync(path);
     }
     const images = urls.map((file) => file);
     res.json(images);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ status: "error", message: error.message });
   }
 };
@@ -295,6 +305,7 @@ const deleteImages = async (req, res) => {
     await cloudinaryDeleteImg(id);
     res.json({ message: "Deleted successfully" });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ status: "error", message: error.message });
   }
 };

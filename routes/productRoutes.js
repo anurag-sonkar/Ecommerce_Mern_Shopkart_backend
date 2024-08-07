@@ -7,8 +7,8 @@ const checkAdmin = require("../middleware/checkAdmin");
 const authenticate = require("../middleware/authentication");
 const { uploadPhoto, productImgResize } = require("../middleware/uploadImages");
 
-router.delete('/delete-image/:id' ,authenticate,checkAdmin, deleteImages)
 router.put('/upload',authenticate,checkAdmin,uploadPhoto.array('images',10),productImgResize,uploadImages)
+router.delete('/delete-image/:id' ,authenticate,checkAdmin, deleteImages)
 
 
 router.put('/rating' ,authenticate, rating)

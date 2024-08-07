@@ -3,7 +3,7 @@ const COLOR = require("../models/color");
 const handleCreateColor = async (req, res) => {
   try {
     const color = await COLOR.create(req.body);
-    res.status(201).json({ status: "success", color });
+    res.status(201).json({ status: "success", response :color, message:"color created successfully" });
   } catch (error) {
     if (error.code === 11000) {
       res.status(400).json({ status: "error", message: "Duplicate key error" });
@@ -24,10 +24,11 @@ const handleUpdateColor = async (req, res) => {
       );
   
       if (updateColor) {
+        const updatedColors = await COLOR.find()
         res.json({
           status: "success",
           message: "Color updated Successfully",
-          response: updateColor,
+          response: updatedColors,
         });
       } else {
         res.json({ status: "error", message: "Color update failed" });
@@ -46,16 +47,18 @@ const handleDeleteColor = async (req, res) => {
   try {
     const deleteResponse = await COLOR.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedColors = await COLOR.find()
       res.json({
         status: "success",
         message: "Color deleted Successfully",
-        response: deleteResponse,
+        response: updatedColors,
       });
     } else {
       res.json({ status: "error", message: "Color deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -77,7 +80,8 @@ const handleGetColor = async (req, res) => {
       res.json({ status: "error", message: "Color not exists" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -87,9 +91,11 @@ const handleGetAllColor = async (req, res) => {
     res.json({
       status: "success",
       response: response,
+      message:"colors fetched successfully"
     });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 

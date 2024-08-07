@@ -3,35 +3,35 @@ const BLOG_CATEGORY = require("../models/blogCategory");
 const handleCreateBlogCategory = async (req, res) => {
   try {
     const category = await BLOG_CATEGORY.create(req.body);
-    res.status(201).json({ status: "success", category });
+    res.status(201).json({ status: "success", response : category , message:"blog category created successfully"});
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+    
   }
 };
 
 const handleUpdateBlogCategory = async (req, res) => {
-  console.log("Start");
   const { id } = req.params;
-  console.log(id);
   try {
     const updateBlogCategory = await BLOG_CATEGORY.findOneAndUpdate(
       { _id: id },
       req.body,
       { new: true }
     );
-    console.log(updateBlogCategory);
 
     if (updateBlogCategory) {
+      const updatedBlogCategory = await BLOG_CATEGORY.find()
       res.json({
         status: "success",
-        message: "BLOG_CATEGORY updated Successfully",
-        response: updateBlogCategory,
+        message: "blog category updated Successfully",
+        response: updatedBlogCategory,
       });
     } else {
-      res.json({ status: "error", message: "BLOG_CATEGORY update failed" });
+      res.json({ status: "error", message: "blog category update failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -40,16 +40,18 @@ const handleDeleteBlogCategory = async (req, res) => {
   try {
     const deleteResponse = await BLOG_CATEGORY.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedBlogCategory = await BLOG_CATEGORY.find()
       res.json({
         status: "success",
         message: "Products deleted Successfully",
-        response: deleteResponse,
+        response: updatedBlogCategory,
       });
     } else {
       res.json({ status: "error", message: "Product deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -61,12 +63,14 @@ const handleGetBlogCategory = async (req, res) => {
       res.json({
         status: "success",
         response: response,
+        message : "blog category fetched successfully"
       });
     } else {
       res.json({ status: "error", message: "Category not exists" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 
@@ -76,9 +80,12 @@ const handleGetAllBlogCategory = async (req, res) => {
     res.json({
       status: "success",
       response: response,
+      message : "blogs categories fetched successfully"
+
     });
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
   }
 };
 

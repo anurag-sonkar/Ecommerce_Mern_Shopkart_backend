@@ -7,8 +7,10 @@ const crypto = require('crypto')
 
 async function handleRegisterNewUser(req, res) {
   const body = req.body;
-  const { name, email, password, cpassword } = body;
+  const { name, email, password, cpassword ,admin} = body;
   const photo = req.file;
+
+  // console.log({ name, email, password, cpassword ,admin , photo})
 
   if (!name || !email || !password || !cpassword) {
     return res.status(400).json({ error: "fill all the details" });
@@ -28,17 +30,31 @@ async function handleRegisterNewUser(req, res) {
         ? path.relative("./uploads", photo.path).replace(/\\/g, "/")
         : null; // Adjust imgpath
 
-      const user = new USER({
-        name,
-        email,
-        password,
-        cpassword,
-        imgpath: photo ? imgpath : null,
-        date: date,
-      });
+      // check admin register or user
+      let user ;
+      if(admin){
+         user = new USER({
+          name,
+          email,
+          password,
+          cpassword,
+          imgpath: photo ? imgpath : null,
+          role:'admin',
+          date: date,
+        });
+      }else{
+         user = new USER({
+          name,
+          email,
+          password,
+          cpassword,
+          imgpath: photo ? imgpath : null,
+          date: date,
+        });
+      }
 
-      const storeData = await user.save();
-      return res.status(201).json({ status: 201, storeData });
+      const result = await user.save();
+      return res.status(201).json({ status: 201, result });
     }
   } catch (error) {
     return res.status(400).json({ error: error.message });
@@ -65,7 +81,7 @@ async function handleLoginUser(req, res) {
           message: "User is Blocked Can't login, Contact to admin",
         });
     }
-    // console.log(isValidUser)
+    
     if (isValidUser) {
       const isMatch = await bcrypt.compare(password, isValidUser.password);
       // console.log(isMatch)
@@ -74,7 +90,7 @@ async function handleLoginUser(req, res) {
       } else {
         // generate token
         const token = await isValidUser.generateAuthtoken();
-        console.log(token)
+        // console.log(token)
 
         const result = {
           user: isValidUser,
@@ -92,56 +108,96 @@ async function handleLoginUser(req, res) {
 }
 
 // admin login
-async function handleLoginAdmin(req, res) {
-  const body = req.body;
-  const { email, password } = body;
+// async function handleLoginAdmin(req, res) {
+//   const body = req.body;
+//   const { email, password } = body;
 
+//   if (!email || !password) {
+//     return res.status(400).json({ error: "fill all the details" });
+//   }
+
+//   try {
+//     const isValidUser = await USER.findOne({ email: email });
+
+//     // if blocked one returned
+//     if (isValidUser.isBlocked) {
+//       return res
+//         .status(400)
+//         .json({
+//           message: "This Admin is Blocked Can't login",
+//         });
+//     }
+
+//     // check for admin
+//     if(isValidUser.role !== 'admin'){
+//       return res
+//         .status(400)
+//         .json({
+//           message: "Not an Admin",
+//         });
+//     }
+
+
+//     if (isValidUser) {
+//       const isMatch = await bcrypt.compare(password, isValidUser.password);
+//       if (!isMatch) {
+//         return res.status(400).json({ error: "Password not matched" });
+//       } else {
+//         // generate token
+//         const token = await isValidUser.generateAuthtoken();
+
+//         const result = {
+//           user: isValidUser,
+//           token,
+//         };
+
+//         return res.status(201).json({ status: 201, result });
+//       }
+//     } else {
+//       return res.status(400).json({ error: "Account not exist" });
+//     }
+//   } catch (error) {
+//     return res.status(400).json({ error: error.message });
+//   }
+// }
+
+async function handleLoginAdmin(req, res) {
+  const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ error: "fill all the details" });
+    return res.status(400).json({ error: "Fill all the details" });
   }
 
   try {
-    const isValidUser = await USER.findOne({ email: email });
+    const isValidUser = await USER.findOne({ email });
 
-    // if blocked one returned
-    if (isValidUser.isBlocked) {
-      return res
-        .status(400)
-        .json({
-          status: 400,
-          message: "This Admin is Blocked Can't login",
-        });
-    }
-
-    // check for admin
-    if(isValidUser.role !== 'admin'){
-      return res
-        .status(400)
-        .json({
-          status: 400,
-          message: "Not an Admin",
-        });
-    }
-
-
-    if (isValidUser) {
-      const isMatch = await bcrypt.compare(password, isValidUser.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Password not matched" });
-      } else {
-        // generate token
-        const token = await isValidUser.generateAuthtoken();
-
-        const result = {
-          user: isValidUser,
-          token,
-        };
-
-        return res.status(201).json({ status: 201, result });
-      }
-    } else {
+    if (!isValidUser) {
       return res.status(400).json({ error: "Account not exist" });
     }
+
+    // Check if the user is blocked
+    if (isValidUser.isBlocked) {
+      return res.status(400).json({ message: "This Admin is Blocked. Can't login" });
+    }
+
+    // Check if the user is an admin
+    if (isValidUser.role !== 'admin') {
+      return res.status(400).json({ message: "Not an Admin" });
+    }
+
+    const isMatch = await bcrypt.compare(password, isValidUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Password not matched" });
+    }
+
+    // Generate token
+    const token = await isValidUser.generateAuthtoken();
+
+    const result = {
+      user: isValidUser,
+      token,
+    };
+
+    return res.status(201).json({ status: 201, result });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -184,6 +240,7 @@ const handleResetPassword = async (req, res) => {
   await user.save();
   res.json(user);
 };
+
 
 
 

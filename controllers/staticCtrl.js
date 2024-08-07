@@ -6,6 +6,14 @@ const USER = require("../models/user");
 const bcrypt = require("bcryptjs");
 var uniqid = require('uniqid'); 
 
+const handleGetAllUsersInfo = async (req, res) => {
+  try {
+    const users = await USER.find({role:'user'});
+    res.status(200).json({ status: 201, users: users });
+  } catch (error) {
+    res.status(401).json({ status: 401, error: error.message });
+  }
+};
 const handleGetUser = async (req, res) => {
   try {
     const validUserOne = await USER.findOne({ _id: req.userid });
@@ -15,14 +23,6 @@ const handleGetUser = async (req, res) => {
   }
 };
 
-const handleGetAllUsersInfo = async (req, res) => {
-  try {
-    const users = await USER.find();
-    res.status(200).json({ status: 201, users: users });
-  } catch (error) {
-    res.status(401).json({ status: 401, error: error.message });
-  }
-};
 
 const handleGetUserInfo = async (req, res) => {
   const id = req.userid;
@@ -119,15 +119,16 @@ const handleUnblockUser = async (req, res) => {
 };
 
 const handleLogout = async (req, res) => {
+  console.log(req.user)
   try {
     req.user.tokens = req.user.tokens.filter((elem) => {
       return elem.token !== req.token;
     });
 
     req.user.save();
-    res.status(200).json({ status: 200, message: "logout successfully" });
+    res.status(200).json({ status: 200 ,message: "logout successfully" });
   } catch (error) {
-    res.status(401).json({ status: 401, error: error.message });
+    res.status(401).json({ status: 401, message: error.message });
   }
 };
 
@@ -363,7 +364,8 @@ const handleGetOrder = async (req, res) => {
       console.log(userorders)
     res.json(userorders);
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+
   }
 }
 
@@ -373,9 +375,9 @@ const handleGetAllOrders = async (req, res) => {
       .populate("products.product")
       .populate("orderby")
       .exec();
-    res.json(alluserorders);
+    return res.json({status:"success" ,message:"orders fetched successfully" ,response:alluserorders});
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
   }
 }
 
@@ -388,29 +390,49 @@ const handleGetOrderByUserId = async (req, res) => {
       .exec();
     res.json(userorders);
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({message:error.message})
+    
   }
 }
 
 const handleUpdateOrderStatus = async (req, res) => {
   const { status } = req.body;
   const { id } = req.params;
+
   try {
+    // Find the order to get the current paymentIntent
+    const order = await ORDER.findById(id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Update only the status field of the paymentIntent
+    const updatedPaymentIntent = { ...order.paymentIntent, status: status };
+
+    // Update the order with the new status and the updated paymentIntent
     const updateOrderStatus = await ORDER.findByIdAndUpdate(
-      id,
+      {_id:id},
       {
         orderStatus: status,
-        paymentIntent: {
-          status: status,
-        },
+        paymentIntent: updatedPaymentIntent,
       },
       { new: true }
     );
-    res.json(updateOrderStatus);
+
+    if (updateOrderStatus) {
+      const updatedOrder = await ORDER.find() .populate("products.product")
+      .populate("orderby")
+      .exec();;
+      return res.status(200).json({ response: updatedOrder, message: "Order updated successfully" });
+    } else {
+      return res.status(400).json({ message: "Order update failed" });
+    }
   } catch (error) {
-    throw new Error(error);
+    return res.status(500).json({ message: error.message });
   }
 }
+
 
 module.exports = {
   handleGetUser,

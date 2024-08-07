@@ -3,36 +3,42 @@ const PRODUCT_CATEGORY = require("../models/productCategory");
 const handleCreateProductCategory = async (req, res) => {
   try {
     const category = await PRODUCT_CATEGORY.create(req.body);
-    res.status(201).json({ status: "success", category });
+    res.status(201).json({ status: "success", category , message:"product category created successfully"});
   } catch (error) {
-    throw new Error(error);
+    if (error.code === 11000) { // MongoDB duplicate key error code
+      res.status(400).json({ status: "error", message: "Category already exists" });
+    } else {
+      res.status(500).json({ status: "error", message: error.message });
+    }
   }
 };
 
 const handleUpdateProductCategory = async (req, res) => {
   
-  console.log("Start")
   const { id } = req.params;
-  console.log(id)
   try {
     const updateProductCategory = await PRODUCT_CATEGORY.findOneAndUpdate(
       { _id: id },
       req.body,
       { new: true }
     );
-  console.log(updateProductCategory)
 
     if (updateProductCategory) {
+      const updatedProductCategory = await PRODUCT_CATEGORY.find()
       res.json({
         status: "success",
         message: "PRODUCT_CATEGORY updated Successfully",
-        response: updateProductCategory,
+        response: updatedProductCategory,
       });
     } else {
       res.json({ status: "error", message: "PRODUCT_CATEGORY update failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    if (error.code === 11000) { // MongoDB duplicate key error code
+      return res.status(400).json({ status: "error", message: "Category already exists" });
+    } else {
+      res.status(500).json({ status: "error", message: error.message });
+    }
   }
 };
 
@@ -42,16 +48,19 @@ const handleDeleteProductCategory = async(req,res)=>{
   try {
     const deleteResponse = await PRODUCT_CATEGORY.deleteOne({ _id: id });
     if (deleteResponse) {
+      const updatedResult = await PRODUCT_CATEGORY.find()
       res.json({
         status: "success",
-        message: "Products deleted Successfully",
-        response: deleteResponse,
+        message: "Products category deleted Successfully",
+        response: updatedResult,
       });
     } else {
-      res.json({ status: "error", message: "Product deletion failed" });
+      res.status(400).json({ status: "error", message: "Product category deletion failed" });
     }
   } catch (error) {
-    throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+    
+    
   }
 }
 
@@ -63,14 +72,16 @@ try {
     res.json({
       status: "success",
       response: response,
+      message:"product fetched successfully"
     });
   }else{
-    res.json({ status: "error", message: "Category not exists" });
+    res.json({ status: "error", message: "Product Category not exists" });
 
   }
   
 } catch (error) {
-  throw new Error(error);
+  res.status(500).json({ status: "error", message: error.message });
+
   
 }
   
@@ -84,9 +95,11 @@ const handleGetAllProductCategory = async(req,res)=>{
     res.json({
       status: "success",
       response: response,
+      message:"products category fetched successfully"
     });
   } catch (error) {
-  throw new Error(error);
+    res.status(500).json({ status: "error", message: error.message });
+
     
   }
 

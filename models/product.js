@@ -44,7 +44,7 @@ var productSchema = new mongoose.Schema(
       },
     ],
 
-    color: [{type:mongoose.Schema.Types.ObjectId , ref:'Color'}],
+    color: [{type:mongoose.Schema.Types.ObjectId , ref:'color'}],
     tags:[],
     ratings: [
       {
