@@ -37,7 +37,7 @@ app.use(morgan())
 
 
 // routes
-app.use('/address' , addressRoute)
+app.use('/address' , authenticate, addressRoute)
 app.use('/enquiry' , enquiryRoute)
 app.use('/coupon' , couponRoute)
 app.use('/color' , colorRoute)
