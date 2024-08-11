@@ -3,7 +3,7 @@ const ENQUIRY = require("../models/enquiry");
 const handleCreateEnquiry = async (req, res) => {
   try {
     const enquiry = await ENQUIRY.create(req.body);
-    res.status(201).json({ status: "success", enquiry });
+    res.status(201).json({ status: "success", enquiry , message:"enquiry generated successfully" });
   } catch (error) {
     if (error.code === 11000) {
       res.status(400).json({ status: "error", message: "Duplicate key error" });

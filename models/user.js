@@ -33,7 +33,7 @@ var userSchema = new mongoose.Schema(
 
     },
     imgpath: {
-      type: String,
+      type: Object,
       default: null,
     },
     date: {

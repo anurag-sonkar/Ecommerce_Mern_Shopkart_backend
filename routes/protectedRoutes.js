@@ -19,7 +19,8 @@ const {
   handleGetOrder,
   handleGetAllOrders,
   handleGetOrderByUserId,
-  handleUpdateOrderStatus
+  handleUpdateOrderStatus,
+  handleDeleteUserCartItem
 
 } = require("../controllers/staticCtrl");
 const checkAdmin = require("../middleware/checkAdmin");
@@ -35,6 +36,7 @@ router.put('/changepassword' , handleChangePassword)
 // cart
 router.post('/cart',handleUserCart)
 router.get('/cart',hanldeGetUserCart)
+router.delete('/cart/:prodId' , handleDeleteUserCartItem)
 router.delete('/cart',handleEmptyUserCart)
 // apply coupon
 router.post('/cart/coupon' , handleApplyCoupon)

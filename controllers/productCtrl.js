@@ -162,7 +162,7 @@ const getAllProducts = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
   const { productId } = req.body; // product id which needs to be added/removed from user wishlist
-
+  // console.log(req.body)
   // Validate productId
   // if (!mongoose.Types.ObjectId.isValid(productId)) {
   //   return res.status(400).json({ message: "Invalid product ID" });
@@ -193,7 +193,7 @@ const addToWishlist = async (req, res) => {
           new: true,
         }
       ).populate("wishlist");
-      res.json(updatedUser);
+      res.json({response :updatedUser , message:"removed from wishlist"});
     } else {
       const updatedUser = await USER.findByIdAndUpdate(
         {_id:id},
@@ -204,7 +204,7 @@ const addToWishlist = async (req, res) => {
           new: true,
         }
       ).populate("wishlist");
-      res.json(updatedUser);
+      res.json({response :updatedUser , message:"added to wishlist"});
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

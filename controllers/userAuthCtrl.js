@@ -3,7 +3,10 @@ const moment = require("moment");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const sendEmail = require("./emailCtrl");
-const crypto = require('crypto')
+const crypto = require('crypto');
+const { cloudinaryUploadImg } = require("../utils/cloudinary");
+const fs = require('fs')
+
 
 async function handleRegisterNewUser(req, res) {
   const body = req.body;
@@ -16,6 +19,7 @@ async function handleRegisterNewUser(req, res) {
     return res.status(400).json({ error: "fill all the details" });
   }
 
+
   try {
     const preUser = await USER.findOne({ email: email });
     if (preUser) {
@@ -26,33 +30,32 @@ async function handleRegisterNewUser(req, res) {
         .json({ error: "Password and Confirm Password Not Match" });
     } else {
       const date = moment(new Date()).format("YYYY-MM-DD");
-      const imgpath = photo
-        ? path.relative("./uploads", photo.path).replace(/\\/g, "/")
-        : null; // Adjust imgpath
 
-      // check admin register or user
-      let user ;
-      if(admin){
-         user = new USER({
-          name,
-          email,
-          password,
-          cpassword,
-          imgpath: photo ? imgpath : null,
-          role:'admin',
-          date: date,
-        });
-      }else{
-         user = new USER({
-          name,
-          email,
-          password,
-          cpassword,
-          imgpath: photo ? imgpath : null,
-          date: date,
+      //upload - cloudinary
+      let imgpath = null;
+      if (photo) {
+        imgpath = await cloudinaryUploadImg(photo.path, "images");
+
+        // Delete the local file after upload
+        fs.unlink(photo.path, (err) => {
+          if (err) {
+            console.error('Error deleting the local file:', err);
+          } else {
+            console.log('Local file deleted successfully');
+          }
         });
       }
-
+      // console.log(imgpath)
+      
+      const user = new USER({
+        name,
+        email,
+        password,
+        cpassword,
+        imgpath,
+        role: admin ? 'admin' : 'user',
+        date,
+      });
       const result = await user.save();
       return res.status(201).json({ status: 201, result });
     }
