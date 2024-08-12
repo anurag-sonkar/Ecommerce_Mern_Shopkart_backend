@@ -19,6 +19,9 @@ const addressRoute = require('./routes/AddressRoutes')
 
 const path = require('path')
 const authenticate = require('./middleware/authentication')
+{/* temp */}
+const { checkout, paymentVerification } = require('./controllers/paymentCtrl')
+
 
 // middleware
 app.use(cors({
@@ -36,6 +39,10 @@ app.use(morgan())
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
+
+{/* temp */}
+app.post('/checkout' ,authenticate, checkout)
+app.post('/paymentVerification' ,authenticate, paymentVerification)
 // routes
 app.use('/address' , authenticate, addressRoute)
 app.use('/enquiry' , enquiryRoute)
@@ -49,4 +56,8 @@ app.use('/product', productRoute)
 app.use('/auth' , authRouter)
 app.use('/' , authenticate ,protectedRoute)
 
-app.listen(PORT , ()=>console.log(`Server Running at http://192.168.43.196:${PORT} `))
+
+
+
+
+app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))

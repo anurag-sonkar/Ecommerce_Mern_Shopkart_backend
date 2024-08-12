@@ -24,6 +24,7 @@ const {
 
 } = require("../controllers/staticCtrl");
 const checkAdmin = require("../middleware/checkAdmin");
+// const { checkout,paymentVerification } = require("../controllers/paymentCtrl");
 const router = express.Router();
 
 router.put('/add-address' , handleAddAddress)
@@ -41,12 +42,16 @@ router.delete('/cart',handleEmptyUserCart)
 // apply coupon
 router.post('/cart/coupon' , handleApplyCoupon)
 
+// payment-razorpay
+// router.post('/checkout' , checkout)
+// router.post('/paymentVerification' , paymentVerification)
+
 // order
-router.get('/order/get-all' , handleGetAllOrders)
-router.post('/order/cod' , handleCreateOrder)
-router.get('/order' , handleGetOrder)
-router.get('/order/:id' , handleGetOrderByUserId)
-router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
+router.post('/order' , handleCreateOrder)
+// router.get('/order/get-all' , handleGetAllOrders)
+// router.get('/order' , handleGetOrder)
+// router.get('/order/:id' , handleGetOrderByUserId)
+// router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
 
 
 

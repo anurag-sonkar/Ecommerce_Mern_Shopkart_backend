@@ -44,9 +44,11 @@ var orderSchema = new mongoose.Schema(
       required: true,
     },
     shippingInfo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Address",
-      required: true,
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Address",
+      // required: true, 
+      type:Object,
+      required:true
     },
 
     paymentInfo: {
@@ -62,13 +64,56 @@ var orderSchema = new mongoose.Schema(
 
     orderItems:[
       {
-        product:{
-          type:mongoose.Schema.Types.ObjectId,
-          ref:"Product",
-          required:true
-        }
+        type:Object,
+        required:true
+        // product:{
+        //   type:mongoose.Schema.Types.ObjectId,
+        //   ref:"Product",
+        //   required:true
+        // },
+        // color:{
+        //   type:mongoose.Schema.Types.ObjectId,
+        //   ref:"Color",
+        //   required:true
+        // },
+        // count:{
+        //   type:Number,
+        //   required:true
+          
+        // },
+        // price:{
+        //   type:Number,
+        //   required:true
+
+        // },
+
       }
-    ]
+    ],
+
+    paidAt:{
+      type:Date,
+      default:Date.now()
+    },
+    totalPrice:{
+      type:Number,
+      required:true
+    },
+    totalPriceAfterDiscount:{
+      type:Number,
+      required:true
+    },
+    orderStatus:{
+      type: String,
+      default: "Ordered",
+      // enum: [
+      //   "Not Processed",
+      //   "Cash on Delivery",
+      //   "Processing",
+      //   "Dispatched",
+      //   "Cancelled",
+      //   "Delivered",
+      // ],
+    }
   },
 
   {

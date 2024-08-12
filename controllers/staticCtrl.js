@@ -4,6 +4,8 @@ const ORDER = require("../models/order");
 const PRODUCT = require("../models/product");
 const USER = require("../models/user");
 const bcrypt = require("bcryptjs");
+const ADDRESS = require('../models/address')
+const mongoose = require('mongoose')
 var uniqid = require('uniqid'); 
 
 const handleGetAllUsersInfo = async (req, res) => {
@@ -499,7 +501,7 @@ const hanldeGetUserCart = async (req, res) => {
   const { id } = req.user;
   try {
     const cart = await CART.findOne({ orderby: id }).populate(
-      "products.product"
+      ["products.product" , "orderby"]
     );
     res.status(200).json({ response: cart , message : "cart fetched successfully"});
   } catch (error) {
@@ -597,133 +599,177 @@ const handleApplyCoupon = async (req, res) => {
 
 
 // orders
+// const handleCreateOrder = async(req,res)=>{
+//   const {COD , couponApplied} = req.body
+//   const {id} = req.user
+
+//   if(!COD) return res.status(400).json({message:"COD order failed"})
+//   try {
+//     let userCart = await CART.findOne({orderby:id})
+//     // console.log(userCart)
+//     let finalAmount = 0
+
+//     if (couponApplied && userCart.totalAfterDiscount) {
+//       finalAmount = userCart.totalAfterDiscount;
+//     } else {
+//       finalAmount = userCart.cartTotal;
+//     }
+
+//     let newOrder = await new  ORDER({
+//       products:userCart.products,
+//       paymentIntent:{
+//         id: uniqid(),
+//         method:"COD",
+//         amount:finalAmount,
+//         status:"Cash on Delivery",
+//         created :Date.now(),
+//         currency:"usd"
+//       },
+//       orderby:req.user.id,
+//       orderStatus:"Cash on Delivery"
+//     }).save()
+
+//     let update = userCart.products.map((item) => {
+//       return {
+//         updateOne: {
+//           filter: { _id: item.product._id },
+//           update: { $inc: { quantity: -item.count, sold: +item.count } },
+//         },
+//       };
+//     });
+//     const updated = await PRODUCT.bulkWrite(update, {});
+//     res.status(200).json({ message: "success" });
+
+//   } catch (error) {
+//     return res.status(400).json(error.message);
+
+    
+//   }
+// }
+
+
+// const handleGetOrder = async (req, res) => {
+//   const { id } = req.user;
+//   try {
+//     const userorders = await ORDER.findOne({ orderby: id })
+//       .populate("products.product")
+//       .populate("orderby")
+//       .exec();
+//       console.log(userorders)
+//     res.json(userorders);
+//   } catch (error) {
+//     return res.status(500).json({message:error.message})
+
+//   }
+// }
+
+// const handleGetAllOrders = async (req, res) => {
+//   try {
+//     const alluserorders = await ORDER.find()
+//       .populate("products.product")
+//       .populate("orderby")
+//       .exec();
+//     return res.json({status:"success" ,message:"orders fetched successfully" ,response:alluserorders});
+//   } catch (error) {
+//     return res.status(500).json({message:error.message})
+//   }
+// }
+
+// const handleGetOrderByUserId = async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const userorders = await ORDER.findOne({ orderby: id })
+//       .populate("products.product")
+//       .populate("orderby")
+//       .exec();
+//     res.json(userorders);
+//   } catch (error) {
+//     return res.status(500).json({message:error.message})
+    
+//   }
+// }
+
+// const handleUpdateOrderStatus = async (req, res) => {
+//   const { status } = req.body;
+//   const { id } = req.params;
+
+//   try {
+//     // Find the order to get the current paymentIntent
+//     const order = await ORDER.findById(id);
+
+//     if (!order) {
+//       return res.status(404).json({ message: "Order not found" });
+//     }
+
+//     // Update only the status field of the paymentIntent
+//     const updatedPaymentIntent = { ...order.paymentIntent, status: status };
+
+//     // Update the order with the new status and the updated paymentIntent
+//     const updateOrderStatus = await ORDER.findByIdAndUpdate(
+//       {_id:id},
+//       {
+//         orderStatus: status,
+//         paymentIntent: updatedPaymentIntent,
+//       },
+//       { new: true }
+//     );
+
+//     if (updateOrderStatus) {
+//       const updatedOrder = await ORDER.find() .populate("products.product")
+//       .populate("orderby")
+//       .exec();;
+//       return res.status(200).json({ response: updatedOrder, message: "Order updated successfully" });
+//     } else {
+//       return res.status(400).json({ message: "Order update failed" });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({ message: error.message });
+//   }
+// }
+
+{/* changing */}
 const handleCreateOrder = async(req,res)=>{
-  const {COD , couponApplied} = req.body
-  const {id} = req.user
-
-  if(!COD) return res.status(400).json({message:"COD order failed"})
   try {
-    let userCart = await CART.findOne({orderby:id})
-    // console.log(userCart)
-    let finalAmount = 0
+    const {shippingInfo,paymentInfo,orderItems,totalPrice,totalPriceAfterDiscount,} = req.body;
+    const {_id} = req.user
 
-    if (couponApplied && userCart.totalAfterDiscount) {
-      finalAmount = userCart.totalAfterDiscount;
-    } else {
-      finalAmount = userCart.cartTotal;
-    }
-
-    let newOrder = await new  ORDER({
-      products:userCart.products,
-      paymentIntent:{
-        id: uniqid(),
-        method:"COD",
-        amount:finalAmount,
-        status:"Cash on Delivery",
-        created :Date.now(),
-        currency:"usd"
-      },
-      orderby:req.user.id,
-      orderStatus:"Cash on Delivery"
-    }).save()
-
-    let update = userCart.products.map((item) => {
-      return {
-        updateOne: {
-          filter: { _id: item.product._id },
-          update: { $inc: { quantity: -item.count, sold: +item.count } },
-        },
-      };
+    const address = await ADDRESS.findOne({
+      user: _id,
+      "details._id": shippingInfo
     });
-    const updated = await PRODUCT.bulkWrite(update, {});
-    res.status(200).json({ message: "success" });
-
-  } catch (error) {
-    return res.status(400).json(error.message);
-
-    
-  }
-}
-
-
-const handleGetOrder = async (req, res) => {
-  const { id } = req.user;
-  try {
-    const userorders = await ORDER.findOne({ orderby: id })
-      .populate("products.product")
-      .populate("orderby")
-      .exec();
-      console.log(userorders)
-    res.json(userorders);
-  } catch (error) {
-    return res.status(500).json({message:error.message})
-
-  }
-}
-
-const handleGetAllOrders = async (req, res) => {
-  try {
-    const alluserorders = await ORDER.find()
-      .populate("products.product")
-      .populate("orderby")
-      .exec();
-    return res.json({status:"success" ,message:"orders fetched successfully" ,response:alluserorders});
-  } catch (error) {
-    return res.status(500).json({message:error.message})
-  }
-}
-
-const handleGetOrderByUserId = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const userorders = await ORDER.findOne({ orderby: id })
-      .populate("products.product")
-      .populate("orderby")
-      .exec();
-    res.json(userorders);
-  } catch (error) {
-    return res.status(500).json({message:error.message})
-    
-  }
-}
-
-const handleUpdateOrderStatus = async (req, res) => {
-  const { status } = req.body;
-  const { id } = req.params;
-
-  try {
-    // Find the order to get the current paymentIntent
-    const order = await ORDER.findById(id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    // console.log(address)
+    if (!address) {
+      return res.status(404).json({ message: "Address not found" });
     }
 
-    // Update only the status field of the paymentIntent
-    const updatedPaymentIntent = { ...order.paymentIntent, status: status };
-
-    // Update the order with the new status and the updated paymentIntent
-    const updateOrderStatus = await ORDER.findByIdAndUpdate(
-      {_id:id},
-      {
-        orderStatus: status,
-        paymentIntent: updatedPaymentIntent,
-      },
-      { new: true }
-    );
-
-    if (updateOrderStatus) {
-      const updatedOrder = await ORDER.find() .populate("products.product")
-      .populate("orderby")
-      .exec();;
-      return res.status(200).json({ response: updatedOrder, message: "Order updated successfully" });
-    } else {
-      return res.status(400).json({ message: "Order update failed" });
+    // Extract the specific detail from the details array
+    const specificDetail = address.details.id(shippingInfo);
+    // console.log(specificDetail)
+    if (!specificDetail) {
+      return res.status(404).json({ message: "Address detail not found" });
     }
+    
+
+    const order = await ORDER.create({
+      shippingInfo:specificDetail,paymentInfo,orderItems,totalPrice,totalPriceAfterDiscount, user:_id
+    })
+
+     // Populate the necessary fields
+    const response = await order.populate([
+      { path: 'user', model: 'User' },
+      { path: 'orderItems.product', model: 'Product' },
+      { path: 'orderItems.color', model: 'color' },
+    ]);
+    
+    return res.json({message:"order placed successfully" , response:response})
   } catch (error) {
     return res.status(500).json({ message: error.message });
+    
   }
 }
+
+
+
 
 
 module.exports = {
@@ -743,9 +789,9 @@ module.exports = {
   handleEmptyUserCart,
   handleApplyCoupon,
   handleCreateOrder,
-  handleGetOrder,
-  handleGetAllOrders,
-  handleGetOrderByUserId,
-  handleUpdateOrderStatus,
+  // handleGetOrder,
+  // handleGetAllOrders,
+  // handleGetOrderByUserId,
+  // handleUpdateOrderStatus,
   handleDeleteUserCartItem
 };
