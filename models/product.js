@@ -50,6 +50,7 @@ var productSchema = new mongoose.Schema(
       {
         star: Number,
         comment: String,
+        date: { type: Date, default: Date.now },
         postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       },
     ],

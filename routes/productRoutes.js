@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {createProduct,getProduct,updateProduct,deleteProduct,getAllProducts,addToWishlist,rating, uploadImages,deleteImages} = require('../controllers/productCtrl');
+const {createProduct,getProduct,updateProduct,deleteProduct,getAllProducts,addToWishlist,handleCreateProductRating,handleGetProductRatings , uploadImages,deleteImages} = require('../controllers/productCtrl');
 
 const checkAdmin = require("../middleware/checkAdmin");
 const authenticate = require("../middleware/authentication");
@@ -11,7 +11,8 @@ router.put('/upload',authenticate,checkAdmin,uploadPhoto.array('images',10),prod
 router.delete('/delete-image/:id' ,authenticate,checkAdmin, deleteImages)
 
 
-router.put('/rating' ,authenticate, rating)
+router.put('/rating' ,authenticate, handleCreateProductRating)
+router.get('/rating/:id' ,authenticate, handleGetProductRatings)
 router.put('/addtowishlist' ,authenticate, addToWishlist)
 router.post('/' ,authenticate ,checkAdmin, createProduct)
 router.get('/:id' , getProduct)

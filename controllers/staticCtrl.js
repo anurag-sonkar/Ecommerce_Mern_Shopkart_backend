@@ -768,6 +768,25 @@ const handleCreateOrder = async(req,res)=>{
   }
 }
 
+{/* user specific order using its id */}
+const handleGetUserOrder = async(req,res)=>{
+  const {_id} = req.user
+  if(!_id) return res.status(400).json({message:"login required"})
+  try {
+
+    const userOrders = await ORDER.find({user:_id})
+    if(userOrders){
+      return res.status(200).json({message : 'orders fetched successfully' , response:userOrders})
+    }else{
+      return res.status(400).json({message: "no order"})
+    }
+    
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+
+}
+
 
 
 
@@ -789,6 +808,7 @@ module.exports = {
   handleEmptyUserCart,
   handleApplyCoupon,
   handleCreateOrder,
+  handleGetUserOrder,
   // handleGetOrder,
   // handleGetAllOrders,
   // handleGetOrderByUserId,

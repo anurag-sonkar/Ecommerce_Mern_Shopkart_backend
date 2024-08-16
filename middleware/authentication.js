@@ -4,13 +4,13 @@ const SECRET_KEY = "anurag053";
 
 const authenticate = async (req, res, next) => {
   // console.log(req.headers.authorization)
-  if(!req.headers.authorization) return res.status(400).json({error:"token not found"})
+  if(!req.headers.authorization) return res.status(400).json({error:"token not found" , message:"required login"})
     try {
   const token = req.headers.authorization.split(" ")[1]; // while postman testing
     // const token = req.headers.authorization; // with frontend form
 
     if (!token) {
-      return res.status(401).json({ error: 'Authorization token not provided' });
+      return res.status(401).json({ error: 'Authorization token not provided' , message:"required login" });
     }
 
     const verifyToken = jwt.verify(token, SECRET_KEY);

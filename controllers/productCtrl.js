@@ -2,7 +2,9 @@ const PRODUCT = require("../models/product");
 const slugify = require("slugify");
 const USER = require("../models/user");
 const { cloudinaryUploadImg , cloudinaryDeleteImg } = require("../utils/cloudinary");
-const fs = require('fs')
+const fs = require('fs');
+const { productImgResize } = require("../middleware/uploadImages");
+const mongoose = require('mongoose')
 
 const createProduct = async (req, res) => {
   console.log("body",req.body)
@@ -20,7 +22,10 @@ const createProduct = async (req, res) => {
 const getProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await PRODUCT.findOne({ _id: id }).populate('color');
+    const product = await PRODUCT.findOne({ _id: id }).populate(['color','ratings.date']).populate({
+      path: 'ratings.postedby',
+      select: 'name imgpath', // Specify the fields to select
+    });
     if (product) {
       return res.status(200).json({ status: "success", response: product , message:"product fetched successfully"});
     } else {
@@ -77,8 +82,11 @@ const deleteProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
+  console.log(req.query)
   /* filtering*/
   const {
+    totalrating,
+    tag,
     title,
     category,
     brand,
@@ -118,8 +126,20 @@ const getAllProducts = async (req, res) => {
   }
 
   if (color) {
-    filter.color = { $regex: new RegExp(color, "i") };
+    // filter.color = { $regex: new RegExp(color, "i") };
+    filter.color = new mongoose.Types.ObjectId(color);
   }
+
+  if(tag){
+    // filter.tags = {$regex: new RegExp(tag, "i")}
+    filter.tags = { $in: [new RegExp(tag, "i")] };
+  }
+
+    if (totalrating) {
+      // filter.totalrating = { $regex: "^" + totalrating + "$", $options: "i" };
+      filter.totalrating = { $regex: new RegExp(totalrating, "i") }
+    }
+    
 
   /* Sorting of Products */
   // create a sort object
@@ -141,6 +161,7 @@ const getAllProducts = async (req, res) => {
   const skipValue = (pageValue - 1) * limitValue;
 
   // console.log(filter , sort , limit)
+  console.log(filter)
 
   try {
     const products = await PRODUCT.find(filter)
@@ -211,7 +232,7 @@ const addToWishlist = async (req, res) => {
   }
 };
 
-const rating = async(req,res)=>{
+const handleCreateProductRating = async(req,res)=>{
   // Extract user ID and rating details from request
   const { _id } = req.user; // User ID from authentication middleware
   const { star, prodId, comment } = req.body; // Star rating, product ID, and comment from request body
@@ -270,13 +291,27 @@ const rating = async(req,res)=>{
         totalrating: averageRating,
       },
       { new: true }
-    ).populate('ratings.postedby', ['email','name','date'])
+    ).populate('ratings.postedby', ['name','date'])
 
     // Send the updated product as response
-    res.json(finalProduct);
+    res.json({response :finalProduct , message : "review posted successfully"});
   } catch (error) {
     return res.status(500).json({message:error.message})
     
+  }
+}
+
+
+const handleGetProductRatings = async(req,res)=>{
+  const {id} = req.params
+  try {
+    const response = await PRODUCT.findById(id).populate('ratings.postedby', ['email','name','date'])
+    console.log(response)
+
+    
+  } catch (error) {
+    
+    return res.status(500).json({message:error.message})
   }
 }
 
@@ -317,7 +352,8 @@ module.exports = {
   deleteProduct,
   getAllProducts,
   addToWishlist,
-  rating,
+  handleCreateProductRating,
+  handleGetProductRatings,
   uploadImages,
   deleteImages
 };

@@ -209,11 +209,15 @@ async function handleLoginAdmin(req, res) {
 const handleForgotPassword = async (req, res) => {
   const { email } = req.body;
   const user = await USER.findOne({ email: email });
-  if (!user) throw new Error("User not found with this email");
+  console.log(user)
+  if (!user) return res.status(400).json({message:"User not found with this email"})
   try {
     const token = await user.createPasswordResetToken();
     await user.save();
-    const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:8000/auth/reset-password/${token}'>Click Here</>`;
+    const resetURL = `
+  Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now.<br/>
+  <a href='http://localhost:5173/reset-password/${token}'>Click Here</a>
+`;
     const data = {
       to: email,
       text: resetURL,
@@ -221,28 +225,69 @@ const handleForgotPassword = async (req, res) => {
       htm: resetURL,
     };
     sendEmail(data);
-    res.json(token);
+    res.status(201).json({token , message:"reset password link sent successfully"});
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
-const handleResetPassword = async (req, res) => {
-  const { password } = req.body;
-  const { token } = req.params;
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-  const user = await USER.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpire: { $gt: Date.now() },
-  });
+// const handleResetPassword = async (req, res) => {
+//   const { password } = req.body;
+//   const { token } = req.params;
+//   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+//   const user = await USER.findOne({
+//     passwordResetToken: hashedToken,
+//     passwordResetExpire: { $gt: Date.now() },
+//   });
   
-  if (!user) throw new Error(" Token Expired, Please try again later");
-  user.password = password;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpire = undefined;
-  await user.save();
-  res.json(user);
+//   if (!user) throw new Error(" Token Expired, Please try again later");
+//   user.password = password;
+//   user.passwordResetToken = undefined;
+//   user.passwordResetExpire = undefined;
+//   await user.save();
+//   res.json({response : user , message:"password reset successfully"});
+// };
+
+const handleResetPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const { token } = req.params;
+
+    // Hash the token to match it with the hashed version in the database
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find the user based on the hashed token and ensure the token has not expired
+    const user = await USER.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpire: { $gt: Date.now() }, // Check if the token has expired
+    });
+
+    if (!user) {
+      // If no user is found or the token has expired, return an error response
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Token is invalid or has expired. Please request a new password reset.',
+      });
+    }
+
+    // If the user is found and the token is valid, proceed with password reset
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpire = undefined;
+    await user.save();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Password reset successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'An error occurred while resetting the password. Please try again later.',
+    });
+  }
 };
+
 
 
 

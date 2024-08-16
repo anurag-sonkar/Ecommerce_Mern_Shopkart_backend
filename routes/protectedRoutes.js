@@ -16,6 +16,7 @@ const {
   handleEmptyUserCart,
   handleApplyCoupon,
   handleCreateOrder,
+  handleGetUserOrder,
   handleGetOrder,
   handleGetAllOrders,
   handleGetOrderByUserId,
@@ -48,6 +49,7 @@ router.post('/cart/coupon' , handleApplyCoupon)
 
 // order
 router.post('/order' , handleCreateOrder)
+router.get('/order' , handleGetUserOrder)
 // router.get('/order/get-all' , handleGetAllOrders)
 // router.get('/order' , handleGetOrder)
 // router.get('/order/:id' , handleGetOrderByUserId)
