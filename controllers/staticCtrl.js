@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const ADDRESS = require('../models/address')
 const mongoose = require('mongoose')
 var uniqid = require('uniqid'); 
+const { response } = require("express");
 
 const handleGetAllUsersInfo = async (req, res) => {
   try {
@@ -663,17 +664,17 @@ const handleApplyCoupon = async (req, res) => {
 //   }
 // }
 
-// const handleGetAllOrders = async (req, res) => {
-//   try {
-//     const alluserorders = await ORDER.find()
-//       .populate("products.product")
-//       .populate("orderby")
-//       .exec();
-//     return res.json({status:"success" ,message:"orders fetched successfully" ,response:alluserorders});
-//   } catch (error) {
-//     return res.status(500).json({message:error.message})
-//   }
-// }
+const handleGetAllOrders = async (req, res) => {
+  try {
+    const alluserorders = await ORDER.find()
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    return res.json({status:"success" ,message:"orders fetched successfully" ,response:alluserorders});
+  } catch (error) {
+    return res.status(500).json({message:error.message})
+  }
+}
 
 // const handleGetOrderByUserId = async (req, res) => {
 //   const { id } = req.params;
@@ -788,6 +789,219 @@ const handleGetUserOrder = async(req,res)=>{
 }
 
 
+const getMonthWiseOrderIncome = async (req, res) => {
+  const monthNames = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ];
+
+  let d = new Date();
+  d.setDate(1);
+
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+  }
+
+  const endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+
+  try {
+    const data = await ORDER.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $lte: new Date(),
+            $gte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          amount: { $sum: "$totalPriceAfterDiscount" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] },
+          year: "$_id.year",
+          amount: 1,
+        },
+      },
+      {
+        $sort: { year: 1, month: 1 },
+      },
+    ]);
+
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+
+const getMonthWiseOrderCount = async (req, res) => {
+  const monthNames = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ];
+
+  let d = new Date();
+  d.setDate(1);
+
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+  }
+
+  const endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+
+  try {
+    const data = await ORDER.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $lte: new Date(),
+            $gte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          orderCount: { $sum: 1 }, // Counting the number of orders
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] },
+          year: "$_id.year",
+          orderCount: 1,
+        },
+      },
+      {
+        $sort: { year: 1, month: 1 },
+      },
+    ]);
+
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
+
+// combining getMonthWiseOrderIncome and getMonthWiseOrderCount in one
+const getMonthWiseOrderStats = async (req, res) => {
+  const monthNames = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ];
+
+  let d = new Date();
+  d.setDate(1);
+
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+  }
+
+  const endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+
+  try {
+    const data = await ORDER.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $lte: new Date(),
+            $gte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          amount: { $sum: "$totalPriceAfterDiscount" }, // Summing the total amount for each month
+          orderCount: { $sum: 1 }, // Counting the number of orders for each month
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: { $arrayElemAt: [monthNames, { $subtract: ["$_id.month", 1] }] },
+          year: "$_id.year",
+          amount: 1,
+          orderCount: 1,
+        },
+      },
+      {
+        $sort: { year: 1, month: 1 },
+      },
+    ]);
+
+    console.log(data);
+    res.json({ message: "success", response : data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+const getYearWiseOrderStats = async (req, res) => {
+  try {
+    const data = await ORDER.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+          },
+          totalOrders: { $sum: 1 }, // Counting the number of orders for each year
+          totalAmount: { $sum: "$totalPriceAfterDiscount" }, // Summing the total amount for each year
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          year: "$_id.year",
+          totalOrders: 1,
+          totalAmount: 1,
+        },
+      },
+      {
+        $sort: { year: 1 }, // Sorting the result by year in ascending order
+      },
+    ]);
+
+    console.log(data);
+    res.json({ message: "success",response: data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: error.message });
+  }
+};
+
+
+
+
+
+
 
 
 
@@ -809,8 +1023,12 @@ module.exports = {
   handleApplyCoupon,
   handleCreateOrder,
   handleGetUserOrder,
+  getMonthWiseOrderIncome,
+  getMonthWiseOrderCount,
+  getMonthWiseOrderStats,
+  getYearWiseOrderStats,
   // handleGetOrder,
-  // handleGetAllOrders,
+  handleGetAllOrders,
   // handleGetOrderByUserId,
   // handleUpdateOrderStatus,
   handleDeleteUserCartItem

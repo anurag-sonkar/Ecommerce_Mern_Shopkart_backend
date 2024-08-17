@@ -17,6 +17,10 @@ const {
   handleApplyCoupon,
   handleCreateOrder,
   handleGetUserOrder,
+  getMonthWiseOrderIncome,
+  getMonthWiseOrderCount,
+  getMonthWiseOrderStats,
+  getYearWiseOrderStats,
   handleGetOrder,
   handleGetAllOrders,
   handleGetOrderByUserId,
@@ -50,7 +54,11 @@ router.post('/cart/coupon' , handleApplyCoupon)
 // order
 router.post('/order' , handleCreateOrder)
 router.get('/order' , handleGetUserOrder)
-// router.get('/order/get-all' , handleGetAllOrders)
+router.get('/getMonthWiseOrderIncome' , checkAdmin, getMonthWiseOrderIncome)
+router.get('/getMonthWiseOrderCount' , checkAdmin, getMonthWiseOrderCount)
+router.get('/getMonthWiseOrderStats' , checkAdmin, getMonthWiseOrderStats)
+router.get('/getYearlyTotalOrders' , checkAdmin, getYearWiseOrderStats)
+router.get('/order/get-all' , handleGetAllOrders)
 // router.get('/order' , handleGetOrder)
 // router.get('/order/:id' , handleGetOrderByUserId)
 // router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
