@@ -5,8 +5,9 @@ const {
   handleGetUserInfo,
   handleDeleteUser,
   handleUpdateUser,
-  handleBlockUser,
-  handleUnblockUser,
+  // handleBlockUser,
+  // handleUnblockUser,
+  handleUpdateUserStatus,
   handleLogout,
   handleChangePassword,
   handleGetUserWishlist,
@@ -15,16 +16,16 @@ const {
   hanldeGetUserCart,
   handleEmptyUserCart,
   handleApplyCoupon,
-  handleCreateOrder,
-  handleGetUserOrder,
-  getMonthWiseOrderIncome,
-  getMonthWiseOrderCount,
-  getMonthWiseOrderStats,
-  getYearWiseOrderStats,
-  handleGetOrder,
-  handleGetAllOrders,
-  handleGetOrderByUserId,
-  handleUpdateOrderStatus,
+  // handleCreateOrder,
+  // handleGetUserOrder,
+  // getMonthWiseOrderIncome,
+  // getMonthWiseOrderCount,
+  // getMonthWiseOrderStats,
+  // getYearWiseOrderStats,
+  // handleGetOrder,
+  // handleGetAllOrders,
+  // handleGetOrderByUserId,
+  // handleUpdateOrderStatus,
   handleDeleteUserCartItem
 
 } = require("../controllers/staticCtrl");
@@ -52,6 +53,7 @@ router.post('/cart/coupon' , handleApplyCoupon)
 // router.post('/paymentVerification' , paymentVerification)
 
 // order
+/*
 router.post('/order' , handleCreateOrder)
 router.get('/order' , handleGetUserOrder)
 router.get('/getMonthWiseOrderIncome' , checkAdmin, getMonthWiseOrderIncome)
@@ -59,16 +61,19 @@ router.get('/getMonthWiseOrderCount' , checkAdmin, getMonthWiseOrderCount)
 router.get('/getMonthWiseOrderStats' , checkAdmin, getMonthWiseOrderStats)
 router.get('/getYearlyTotalOrders' , checkAdmin, getYearWiseOrderStats)
 router.get('/order/get-all' , handleGetAllOrders)
+router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
+*/
+
 // router.get('/order' , handleGetOrder)
 // router.get('/order/:id' , handleGetOrderByUserId)
-// router.put('/order/update-status/:id' ,checkAdmin, handleUpdateOrderStatus)
 
 
 
 //  if admin
 router.get("/allusers", checkAdmin, handleGetAllUsersInfo);
 router.delete("/deleteuser/:id", checkAdmin, handleDeleteUser);
-router.put("/blockuser/:id", checkAdmin, handleBlockUser);
-router.put("/unblockuser/:id", checkAdmin, handleUnblockUser);
+// router.put("/blockuser/:id", checkAdmin, handleBlockUser);
+// router.put("/unblockuser/:id", checkAdmin, handleUnblockUser);
+router.put("/user-status/:id", checkAdmin, handleUpdateUserStatus);
 
 module.exports = router;

@@ -56,7 +56,7 @@ var userSchema = new mongoose.Schema(
     isBlocked: {
       type: Boolean,
       default: false,
-      select:false
+      // select:false
 
     },
     cart: {
@@ -89,7 +89,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.generateAuthtoken = async function () {
   try {
     let token = jwt.sign({ _id: this._id }, SECRET_KEY, {
-      expiresIn: "1d",
+      expiresIn: "15d",
     });
 
     this.tokens = this.tokens.concat({ token: token });

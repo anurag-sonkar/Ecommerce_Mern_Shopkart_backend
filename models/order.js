@@ -109,14 +109,14 @@ var orderSchema = new mongoose.Schema(
     orderStatus:{
       type: String,
       default: "Ordered",
-      // enum: [
-      //   "Not Processed",
-      //   "Cash on Delivery",
-      //   "Processing",
-      //   "Dispatched",
-      //   "Cancelled",
-      //   "Delivered",
-      // ],
+      enum: [
+        "Ordered",
+        "Processing",
+        "Dispatched",
+        "Cancelled",
+        "Delivered",
+        "Rejected",
+      ],
     }
   },
 
