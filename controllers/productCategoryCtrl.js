@@ -3,7 +3,7 @@ const PRODUCT_CATEGORY = require("../models/productCategory");
 const handleCreateProductCategory = async (req, res) => {
   try {
     const category = await PRODUCT_CATEGORY.create(req.body);
-    res.status(201).json({ status: "success", category , message:"product category created successfully"});
+    res.status(201).json({ status: "success", response : category , message:"product category created successfully"});
   } catch (error) {
     if (error.code === 11000) { // MongoDB duplicate key error code
       res.status(400).json({ status: "error", message: "Category already exists" });

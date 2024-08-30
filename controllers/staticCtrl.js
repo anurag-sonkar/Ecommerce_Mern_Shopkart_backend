@@ -17,6 +17,7 @@ const handleGetAllUsersInfo = async (req, res) => {
     res.status(401).json({ status: 401, error: error.message });
   }
 };
+
 const handleGetUser = async (req, res) => {
   try {
     const validUserOne = await USER.findOne({ _id: req.userid });
@@ -85,9 +86,7 @@ const handleUpdateUser = async (req, res) => {
 // in one api handleBlock and unBlock user
 const  handleUpdateUserStatus = async (req,res)=>{
   const {id} = req.params // user id passes as params - which user to block and unblock
-  console.log(req.body)
   const {status} = req.body
-  console.log(status)
 
   // if(typeof status !== "boolean"){
   //   return res.status(400).json({message:'user status cannot be otherthan true/false must be boolean'})
@@ -96,7 +95,8 @@ const  handleUpdateUserStatus = async (req,res)=>{
     const user = await USER.findByIdAndUpdate({_id:id},{isBlocked:status},{new:true} )
 
     if(user){
-      return res.status(201).json({ message: "status updated successfully" });
+      const users = await USER.find({role:'user'});
+      return res.status(201).json({ status: 201,message: "status updated successfully" ,users : users});
       
     }else{
       return res.status(400).json({ message: "status updation failed " });
@@ -196,6 +196,7 @@ const handleChangePassword = async (req, res) => {
 
 const handleGetUserWishlist = async (req, res) => {
   const { id } = req.user;
+  console.log(id)
   try {
     const response = await USER.findById(id).populate("wishlist");
     res.status(200).json({response :response , message : "wishlist fetched successfully"});

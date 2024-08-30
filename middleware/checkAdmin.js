@@ -10,6 +10,7 @@ const checkAdmin = (req,res,next)=>{
         }
         
     } catch (error) {
+        console.log(error)
         res.status(401).json({status:401 , error : error.message})
 
         

@@ -161,7 +161,7 @@ const getAllProducts = async (req, res) => {
   const skipValue = (pageValue - 1) * limitValue;
 
   // console.log(filter , sort , limit)
-  console.log(filter)
+  // console.log(filter)
 
   try {
     const products = await PRODUCT.find(filter)
@@ -205,7 +205,7 @@ const addToWishlist = async (req, res) => {
 
     if (isAdded) {
       // If user already added the product in its wishlist, then remove it
-      const updatedUser = await USER.findByIdAndUpdate(
+      const response = await USER.findByIdAndUpdate(
         {_id:id},
         {
           $pull: { wishlist: productId },
@@ -214,9 +214,9 @@ const addToWishlist = async (req, res) => {
           new: true,
         }
       ).populate("wishlist");
-      res.json({response :updatedUser , message:"removed from wishlist"});
+      res.json({response :response , message:"removed from wishlist"});
     } else {
-      const updatedUser = await USER.findByIdAndUpdate(
+      const response = await USER.findByIdAndUpdate(
         {_id:id},
         {
           $push: { wishlist: productId },
@@ -225,7 +225,7 @@ const addToWishlist = async (req, res) => {
           new: true,
         }
       ).populate("wishlist");
-      res.json({response :updatedUser , message:"added to wishlist"});
+      res.json({response :response , message:"added to wishlist"});
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

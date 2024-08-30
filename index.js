@@ -17,19 +17,18 @@ const couponRoute = require('./routes/couponRoutes')
 const enquiryRoute = require('./routes/enquiryRoutes')
 const addressRoute = require('./routes/AddressRoutes')
 const orderRoute = require('./routes/orderRoutes')
+const { checkout, paymentVerification } = require('./controllers/paymentCtrl')
 
 const path = require('path')
 const authenticate = require('./middleware/authentication')
-{/* temp */}
-const { checkout, paymentVerification } = require('./controllers/paymentCtrl')
 
 
 // middleware
 app.use(cors({
-    // origin: 'http://192.168.43.196:3000', // Replace with react frontend URL
+    // origin: '192.168.43.195:3000', // Replace with react frontend URL
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow necessary methods
-    credentials: true // If you need to include cookies
+    // credentials: true // If you need to include cookies
   }));
   
 app.use(express.json())
@@ -41,12 +40,11 @@ app.use(morgan())
 
 
 
-{/* temp */}
+// routes
 app.post('/checkout' ,authenticate, checkout)
 app.post('/paymentVerification' ,authenticate, paymentVerification)
-// routes
 app.use('/address' , authenticate, addressRoute)
-app.use('/order', orderRoute)
+app.use('/order',authenticate, orderRoute)
 app.use('/enquiry' , enquiryRoute)
 app.use('/coupon' , couponRoute)
 app.use('/color' , colorRoute)
@@ -62,4 +60,5 @@ app.use('/' , authenticate ,protectedRoute)
 
 
 
-app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
+// app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
+app.listen(PORT , ()=>console.log(`Server Running at http://192.168.43.195:${PORT}`))

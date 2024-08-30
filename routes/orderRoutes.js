@@ -13,14 +13,15 @@ const {
   handleUpdateOrderStatus,
 } = require("../controllers/orderCtrl");
 const authenticate = require("../middleware/authentication");
+const checkAdmin = require("../middleware/checkAdmin");
 
 // router.post('/' , handleCreateOrder)
-router.get("/get-all", handleGetAllOrders);
-router.put("/update-status/:id", handleUpdateOrderStatus);
-router.get("/getMonthWiseOrderIncome", getMonthWiseOrderIncome);
-router.get("/getMonthWiseOrderCount", getMonthWiseOrderCount);
-router.get("/getMonthWiseOrderStats", getMonthWiseOrderStats); {/* in single get both income + count */}
-router.get("/getYearlyTotalOrders", getYearWiseOrderStats);
+router.get("/get-all",checkAdmin, handleGetAllOrders);
+router.put("/update-status/:id",checkAdmin, handleUpdateOrderStatus);
+router.get("/getMonthWiseOrderIncome", checkAdmin,getMonthWiseOrderIncome);
+router.get("/getMonthWiseOrderCount", checkAdmin, getMonthWiseOrderCount);
+router.get("/getMonthWiseOrderStats", checkAdmin, getMonthWiseOrderStats); {/* in single get both income + count */}
+router.get("/getYearlyTotalOrders", checkAdmin, getYearWiseOrderStats);
 
 router.get("/",authenticate , handleGetUserOrder);
 

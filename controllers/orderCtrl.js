@@ -416,7 +416,6 @@ const getMonthWiseOrderStats = async (req, res) => {
       },
     ]);
 
-    console.log(data);
     res.status(200).json({ message: "success", response: data });
   } catch (error) {
     console.error(error);

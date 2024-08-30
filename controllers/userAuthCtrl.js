@@ -75,9 +75,15 @@ async function handleLoginUser(req, res) {
 
   try {
     const isValidUser = await USER.findOne({ email: email });
-
+    console.log(isValidUser)
     // if blocked one returned
-    if (isValidUser.isBlocked) {
+    if(isValidUser === null){
+      return res.status(400).json({
+        message : "user not found"
+      })
+    }
+
+    if (isValidUser.isBlocked === true) {
       return res
         .status(400)
         .json({
@@ -209,16 +215,20 @@ async function handleLoginAdmin(req, res) {
 
 const handleForgotPassword = async (req, res) => {
   const { email } = req.body;
+  console.log(email)
   const user = await USER.findOne({ email: email });
-  console.log(user)
   if (!user) return res.status(400).json({message:"User not found with this email"})
   try {
     const token = await user.createPasswordResetToken();
     await user.save();
     const resetURL = `
   Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now.<br/>
-  <a href='http://localhost:5173/reset-password/${token}'>Click Here</a>
+  <a href='http://192.168.43.195:3000/reset-password/${token}'>Click Here</a>
 `;
+// const resetURL = `
+// Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now.<br/>
+// <a href='${process.env.CLIENT_URL}/reset-password/${token}'>Click Here</a>
+// `;
     const data = {
       to: email,
       text: resetURL,
