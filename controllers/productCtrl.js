@@ -147,13 +147,16 @@ const getAllProducts = async (req, res) => {
   }
 
   /* limiting products and Pagination*/
-  const MAX_LIMIT = 9;
-  let limitValue = limit ? parseInt(limit) : MAX_LIMIT;
-  let pageValue = page ? parseInt(page) : 1;
-  // set maxlimit
-  if (limitValue > MAX_LIMIT) {
-    limitValue = MAX_LIMIT;
-  }
+  // const MAX_LIMIT = 9;
+  // let limitValue = limit ? parseInt(limit) : MAX_LIMIT;
+  // let pageValue = page ? parseInt(page) : 1;
+  // // set maxlimit
+  // if (limitValue > MAX_LIMIT) {
+  //   limitValue = MAX_LIMIT;
+  // }
+
+  let limitValue = limit ? parseInt(limit) : 0
+  let pageValue = page ? parseInt(page) : 1
 
   const skipValue = (pageValue - 1) * limitValue;
 

@@ -4,7 +4,7 @@ var morgan = require('morgan')
 const cors = require('cors')
 require('dotenv').config()
 const db = require('./config/dbConnection')
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 8000
 const BASE_URL = process.env.BASE_URL
 const authRouter = require('./routes/userAuthRoute')
 const protectedRoute = require('./routes/protectedRoutes')
@@ -61,5 +61,5 @@ app.use('/' , authenticate ,protectedRoute)
 
 
 
-// app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
-app.listen(PORT , ()=>console.log(`Server Running at ${BASE_URL}:${PORT}`))
+app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
+// app.listen(PORT , ()=>console.log(`Server Running at ${BASE_URL}:${PORT}`))
