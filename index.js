@@ -42,6 +42,7 @@ app.use(morgan())
 
 
 // routes
+app.use('/auth' , authRouter)
 app.post('/checkout' ,authenticate, checkout)
 app.post('/paymentVerification' ,authenticate, paymentVerification)
 app.use('/address' , authenticate, addressRoute)
@@ -54,7 +55,6 @@ app.use('/blog-category' , blogCategoryRoute)
 app.use('/product-category' , productCategoryRoute)
 app.use('/blog' , blogRoute)
 app.use('/product', productRoute)
-app.use('/auth' , authRouter)
 app.use('/' , authenticate ,protectedRoute)
 
 
