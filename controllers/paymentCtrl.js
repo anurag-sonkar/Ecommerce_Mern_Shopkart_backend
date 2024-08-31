@@ -50,14 +50,12 @@ const paymentVerification = async (req, res) => {
       user: _id,
       "details._id": shippingInfo,
     });
-    console.log(address);
     if (!address) {
       return res.status(404).json({ message: "Address not found" });
     }
 
     // Extract the specific detail from the details array
     const specificDetail = address.details.id(shippingInfo);
-    console.log(specificDetail);
     if (!specificDetail) {
       return res.status(404).json({ message: "Address detail not found" });
     }

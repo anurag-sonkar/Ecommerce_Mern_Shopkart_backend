@@ -55,7 +55,6 @@ const handleCreateAddress = async (req, res) => {
       return res.status(404).json({ message: "Address creation failed" });
     }
   } catch (error) {
-    console.error("Error in creating address:", error);
     return res.status(500).json({ error: error.message });
   }
 };

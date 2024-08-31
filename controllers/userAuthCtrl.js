@@ -75,7 +75,7 @@ async function handleLoginUser(req, res) {
 
   try {
     const isValidUser = await USER.findOne({ email: email });
-    console.log(isValidUser)
+    
     // if blocked one returned
     if(isValidUser === null){
       return res.status(400).json({
@@ -215,7 +215,6 @@ async function handleLoginAdmin(req, res) {
 
 const handleForgotPassword = async (req, res) => {
   const { email } = req.body;
-  console.log(email)
   const user = await USER.findOne({ email: email });
   if (!user) return res.status(400).json({message:"User not found with this email"})
   try {

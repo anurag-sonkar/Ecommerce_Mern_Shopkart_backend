@@ -2,6 +2,7 @@ const PRODUCT_CATEGORY = require("../models/productCategory");
 
 const handleCreateProductCategory = async (req, res) => {
   try {
+    console.log(req.body)
     const category = await PRODUCT_CATEGORY.create(req.body);
     res.status(201).json({ status: "success", response : category , message:"product category created successfully"});
   } catch (error) {

@@ -10,7 +10,7 @@ const authenticate = require("../middleware/authentication");
 const checkAdmin = require("../middleware/checkAdmin");
 const router = express.Router();
 
-router.post("/", authenticate, handleCreateEnquiry);
+router.post("/", handleCreateEnquiry);
 router.put("/:id", authenticate, checkAdmin, handleUpdateEnquiry);
 router.delete("/:id", authenticate, checkAdmin, handleDeleteEnquiry);
 router.get("/:id", handleGetEnquiry);

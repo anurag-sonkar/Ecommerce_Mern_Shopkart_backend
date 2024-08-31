@@ -151,7 +151,6 @@ const  handleUpdateUserStatus = async (req,res)=>{
 // };
 
 const handleLogout = async (req, res) => {
-  console.log(req.user)
   try {
     req.user.tokens = req.user.tokens.filter((elem) => {
       return elem.token !== req.token;
@@ -174,10 +173,7 @@ const handleChangePassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Validate current password
-    console.log("Matching Start");
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    console.log("Matching end");
-    console.log("Check Match", isMatch);
     if (!isMatch)
       return res.status(400).json({ message: "Current password is incorrect" });
 
@@ -196,7 +192,6 @@ const handleChangePassword = async (req, res) => {
 
 const handleGetUserWishlist = async (req, res) => {
   const { id } = req.user;
-  console.log(id)
   try {
     const response = await USER.findById(id).populate("wishlist");
     res.status(200).json({response :response , message : "wishlist fetched successfully"});
@@ -208,7 +203,6 @@ const handleGetUserWishlist = async (req, res) => {
 const handleAddAddress = async (req, res) => {
   const { id } = req.user;
   const { address } = req.body;
-  console.log(id, address);
 
   if (!address)
     return res
@@ -518,7 +512,6 @@ const handleUserCart = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Error handling user cart:', error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -585,7 +578,6 @@ const handleEmptyUserCart = async (req, res) => {
     // const user = await USER.findOne({ _id });
     const response = await CART.findOneAndDelete({ orderby: id } , {new:true});
     if(response){
-      console.log(response)
       res.status(200).json({message : "cart deleted successfully"});
 
     }

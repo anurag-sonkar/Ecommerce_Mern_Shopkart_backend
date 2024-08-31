@@ -7,14 +7,12 @@ const { productImgResize } = require("../middleware/uploadImages");
 const mongoose = require('mongoose')
 
 const createProduct = async (req, res) => {
-  console.log("body",req.body)
   try {
     if (req.body.title) req.body.slug = slugify(req.body.title);
 
     const newProduct = await PRODUCT.create(req.body);
     res.status(201).json({message:"product created successfully" , response : newProduct});
   } catch (error) {
-    console.log(error)
     return res.status(500).json({message:error.message})
   }
 };
@@ -82,7 +80,6 @@ const deleteProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  console.log(req.query)
   /* filtering*/
   const {
     totalrating,
@@ -150,7 +147,7 @@ const getAllProducts = async (req, res) => {
   }
 
   /* limiting products and Pagination*/
-  const MAX_LIMIT = 10;
+  const MAX_LIMIT = 9;
   let limitValue = limit ? parseInt(limit) : MAX_LIMIT;
   let pageValue = page ? parseInt(page) : 1;
   // set maxlimit
@@ -306,7 +303,6 @@ const handleGetProductRatings = async(req,res)=>{
   const {id} = req.params
   try {
     const response = await PRODUCT.findById(id).populate('ratings.postedby', ['email','name','date'])
-    console.log(response)
 
     
   } catch (error) {
@@ -329,7 +325,6 @@ const uploadImages = async (req, res) => {
     const images = urls.map((file) => file);
     res.json(images);
   } catch (error) {
-    console.log(error)
     res.status(500).json({ status: "error", message: error.message });
   }
 };
@@ -340,7 +335,6 @@ const deleteImages = async (req, res) => {
     await cloudinaryDeleteImg(id);
     res.json({ message: "Deleted successfully" });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ status: "error", message: error.message });
   }
 };

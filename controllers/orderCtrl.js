@@ -279,10 +279,8 @@ const getMonthWiseOrderIncome = async (req, res) => {
       },
     ]);
 
-    console.log(data);
     res.json(data);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ status: "error", message: error.message });
   }
 };
@@ -346,10 +344,8 @@ const getMonthWiseOrderCount = async (req, res) => {
       },
     ]);
 
-    console.log(data);
     res.json(data);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ status: "error", message: error.message });
   }
 };
@@ -418,7 +414,6 @@ const getMonthWiseOrderStats = async (req, res) => {
 
     res.status(200).json({ message: "success", response: data });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -450,7 +445,6 @@ const getYearWiseOrderStats = async (req, res) => {
 
     res.status(200).json({ message: "success", response: data });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
