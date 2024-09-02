@@ -222,7 +222,7 @@ const handleForgotPassword = async (req, res) => {
     await user.save();
     const resetURL = `
   Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now.<br/>
-  <a href='https://66d565861c630bb9b116aadc--brilliant-vacherin-32e406.netlify.app/reset-password/${token}'>Click Here</a>
+  <a href='https://66d59182eab8d3e9b01a18ed--brilliant-vacherin-32e406.netlify.app/reset-password/${token}'>Click Here</a>
 `;
 // const resetURL = `
 // Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now.<br/>
