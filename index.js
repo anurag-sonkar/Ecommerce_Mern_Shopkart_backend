@@ -61,5 +61,5 @@ app.use('/' , authenticate ,protectedRoute)
 
 
 
-// app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
-app.listen(PORT , ()=>console.log(`Server Running at ${BASE_URL}:${PORT}`))
+app.listen(PORT , ()=>console.log(`Server Running at http://localhost:${PORT}`))
+// app.listen(PORT , ()=>console.log(`Server Running at ${BASE_URL}:${PORT}`))

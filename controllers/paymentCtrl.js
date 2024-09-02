@@ -82,7 +82,7 @@ const paymentVerification = async (req, res) => {
     //   ]);
 
     // console.log("Payment ID before redirect:", paymentInfo.razorpay_payment_id);
-    const redirectUrl = `http://192.168.43.195:4000/paymentsuccess?reference=${paymentInfo.razorpay_payment_id}`;
+    const redirectUrl = `${process.env.PAYMENT_SUCCESS_PAGE}paymentsuccess?reference=${paymentInfo.razorpay_payment_id}`;
     res.json({
       success: true,
       redirectUrl: redirectUrl,
