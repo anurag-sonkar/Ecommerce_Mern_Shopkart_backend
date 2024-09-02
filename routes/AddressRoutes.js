@@ -3,8 +3,8 @@ const { handleCreateAddress,handleGetUserAddress ,handleDeleteAddress} = require
 const router  = express.Router()
 
 
-router.post('/' , handleCreateAddress)
 router.get('/' , handleGetUserAddress)
+router.post('/' , handleCreateAddress)
 router.delete('/:addressId' , handleDeleteAddress)
 
 

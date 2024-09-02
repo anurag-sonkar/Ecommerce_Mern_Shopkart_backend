@@ -115,10 +115,10 @@ const getAllProducts = async (req, res) => {
   if (minPrice || maxPrice) {
     filter.price = {};
     if (minPrice) {
-      filter.price.$gte = minPrice;
+      filter.price.$gte = parseFloat(minPrice);
     }
     if (maxPrice) {
-      filter.price.$lte = maxPrice;
+      filter.price.$lte = parseFloat(maxPrice);
     }
   }
 

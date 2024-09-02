@@ -61,6 +61,7 @@ const handleCreateAddress = async (req, res) => {
 
 const handleGetUserAddress = async (req, res) => {
   const { _id } = req.user;
+  console.log(_id)
   try {
     const response = await ADDRESS.findOne({ user: _id }).populate('user');
 
