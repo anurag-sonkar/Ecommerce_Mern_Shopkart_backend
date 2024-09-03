@@ -72,7 +72,6 @@ const paymentVerification = async (req, res) => {
       user: _id,
     });
 
-    // console.log(order);
 
     // Populate the necessary fields
     //   const response = await order.populate([
